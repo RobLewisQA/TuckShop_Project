@@ -315,15 +315,18 @@ def read_orders():
     return ('<h1>Orders</h1><br>')+ html + ('<br> <a href="/orders/add">Add new order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 
 
-#@app.route('/orders')
-#def read_orders():
-    #items = Orders.query.all()
-    #table = OrdersTable(items)
-    #connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
-    #sql_engine = sql.create_engine(connect_string)
-    #df = pd.read_sql_table('orders', sql_engine)
-    #html = df.to_html()
-    #return ('<h1>Orders</h1><br>')+html+('<br> <a href="/orders/add">Add new order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+@app.route('/orders/summary')
+def read_order_summary():
+    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+    sql_engine = sql.create_engine(connect_string)
+    df = pd.read_sql_table('orders', sql_engine)
+    df1 = pd.read_sql_table('customers', sql_engine)
+    df2 = pd.read_sql_table('products', sql_engine)
+    df_join = pd.merge(left=(pd.merge(df,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['purchase_date','first_name','last_name','product_name','product_brand','price_x','id_x']]
+    df_groups = df_join.groupby(['product_brand']).purchase_date.count().to_frame()
+    html = df_groups.to_html()
+    return ('<h1>Orders</h1><br>')+ html + ('<br> <a href="/orders/add">Add new order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+
 ### update order
 
 @app.route('/orders/update/<name>')
