@@ -1,0 +1,22 @@
+
+
+<table style="width:100%">
+    <tr>
+      <th>First Name</th>
+      <th>Surname</th>
+      <th>Address</th>
+      <th>Date of Birth</th>
+      <th>Prepaid Balance</th>
+      <th>Select</th>
+    </tr>
+    {% for r in table1 %}
+    <tr>
+      <td>r[0]</td>
+      <td>r[1]</td>
+      <td>r[2]</td>
+      <td>r[3]</td>
+      <td>r[4]</td>
+      <td><label for="sname">Select</label><input type="checkbox" id="select" name="my_checkbox"></td>
+    </tr>
+    {% endfor %}
+</table>

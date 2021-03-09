@@ -3,3 +3,8 @@ Flask-SQLAlchemy
 SQLAlchemy
 pymysql
 flask_table
+pandas
+flask
+flask-wtf
+wtforms
+mysqlclient

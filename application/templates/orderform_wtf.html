@@ -1,0 +1,22 @@
+<html>
+        <head>
+            <title>add_order</title>
+        </head>
+        <body>
+            <div class='form'>
+                <form action="http://localhost:5000/orders/add/order" method='POST'>
+                    {{ form.hidden_tag() }}
+                    {{ form.purchase_date.label }} {{ form.purchase_date }}
+                    <br>
+                    {{ form.price.label }} {{ form.price }}
+                    <br>
+                    {{ form.cash_payment.label }} {{ form.cash_payment }}
+                    <br>
+                    {{ form.prepaid_payment.label }} {{ form.prepaid_payment }}
+                    <br>
+                    {{ form.submit }}
+                {{ message }}
+                </form>
+            </div>
+        </body>
+    </html>
