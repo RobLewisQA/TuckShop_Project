@@ -59,7 +59,7 @@ def read_customers():
     df = pd.read_sql_table('customers', sql_engine)
     html = df.to_html()
 
-    return ('<h1>Customers</h1><br>')+html+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/customers/delete" type="button">Delete customer</a> </br>')+('<br><br> <a href="/products">Navigate to Products</a><br>')+('<a href="/orders">Navigate to Orders</a>')
+    return ('<h1>Customers</h1><br>')+html+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/customers/delete" type="button">Delete customer</a> </br>')+('<br> <a href="/customers/update2" type="button">Update customer records</a> </br>')+('<br><br> <a href="/products">Navigate to Products</a><br>')+('<a href="/orders">Navigate to Orders</a>')
     #('<h1>Customers</h1><br>')+table.__html__()+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')
 
 
@@ -94,7 +94,15 @@ def update_customer():
 
 @app.route('/customers/update/<int:customer_record>',methods=['GET','POST'])
 def customer_update1(customer_record):
-    return render_template('customer_update.html', value = customer_record)
+    people = str(customer_record)
+    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+    sql_engine = sql.create_engine(connect_string)
+    df = pd.read_sql_table('customers', sql_engine)
+    df1 = df.loc[df.id==int(customer_record),:]
+    html = df1.to_html(escape=False)
+    #customer_update_code = pd.read_html('customer_update.html')
+    
+    return html + "<br><br>" + render_template('customer_update.html')
 
 
 
