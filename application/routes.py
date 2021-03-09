@@ -217,9 +217,45 @@ def read_products():
     html = df.to_html()
     #items = Products.query.all()
     #table = ItemTable(items)
-    return ('<h1>Products</h1><br>')+html+('<br> <a href="/products/add">Add new item to stocklist</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+    return ('<h1>Products</h1><br>')+html+('<br> <a href="/products/add">Add new item to stocklist</a> </br>')+('<br> <a href="/products/update2">Edit stocklist</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 
 ## update products
+@app.route('/products/update2')
+def products_update_page():
+    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+    sql_engine = sql.create_engine(connect_string)
+    df = pd.read_sql_table('products', sql_engine)
+    df1 = df.copy()
+    df1['Update'] = 'update'
+    df1['Delete'] = 'delete'
+    for n in range(len(df1)):
+        df1.iloc[n,-1] = "<a href=/products/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
+        df1.iloc[n,-2] = "<a href=/products/update/"+ str(df1.loc[n,'id']) + ">update</a>"
+    html = df1.to_html(render_links=True,escape=False)
+    return html
+
+@app.route('/products/update', methods = ['GET','POST'])
+def update_product():
+    if request.method=='POST':
+        update_record = Products.query.filter_by(id=request.form['entry']).first()
+        update_record.product_name = request.form['product_name']
+        update_record.product_brand = request.form['product_brand']
+        update_record.price = request.form['price']
+        update_record.quantity_in_stock = request.form['quantity_in_stock']
+        update_record.cost_per_item = request.form['cost_per_item']
+        db.session.commit()
+        
+    return redirect(url_for('read_products'))#render_template('customer_update.html',title='update_customer')
+
+@app.route('/products/update/<int:product_record>',methods=['GET','POST'])
+def product_update1(product_record):
+    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+    sql_engine = sql.create_engine(connect_string)
+    df = pd.read_sql_table('products', sql_engine)
+    df1 = df.loc[df.id==int(product_record),:]
+    html = df1.to_html(escape=False)
+    #customer_update_code = pd.read_html('customer_update.html')
+    return html + "<br><br>" + render_template('product_update.html')
 
 ## delete products
 @app.route('/products/delete/<int:product_>')
