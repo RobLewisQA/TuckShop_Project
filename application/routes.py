@@ -254,7 +254,12 @@ def product_delete_page():
 
 @app.route('/orders/add')
 def add_order():
-    return render_template('orderform.html',title='add_order')
+    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+    sql_engine = sql.create_engine(connect_string)
+    df = pd.read_sql_table('products', sql_engine)
+    #df1 = df.loc[df.id==int(customer_record),:]
+    html = df.to_html(escape=False)
+    return render_template('orderform.html',title='add_order') + '<br><br>' + html
 #@app.route('/orders/add/order')
 #def add_orders(date,price,cash_payment,prepaid_payment,fk_customer_id,fk_product_id):
 #    new_product = Products(product_name=name,product_brand=brand,quantity_in_stock=quantity,cost_per_item=itemcost)
@@ -312,7 +317,7 @@ def read_orders():
     df2 = pd.read_sql_table('products', sql_engine)
     df_join = pd.merge(left=(pd.merge(df,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['purchase_date','first_name','last_name','product_name','product_brand','price_x','id_x']]
     html = df_join.to_html()
-    return ('<h1>Orders</h1><br>')+ html + ('<br> <a href="/orders/add">Add new order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+    return ('<h1>Orders</h1><br>')+ html + ('<br> <a href="/orders/add">Add new order</a> </br>')+('<br> <a href="/orders/update2">Edit an order</a> </br>')+('<br> <a href="/orders/add">Add new order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 
 
 @app.route('/orders/summary')
@@ -329,12 +334,43 @@ def read_order_summary():
 
 ### update order
 
-@app.route('/orders/update/<name>')
-def update_orders(name):
-    first_product = Products.query.first()
-    first_product.product_name = name
-    db.session.commit()
-    return first_product.product_name
+@app.route('/orders/update2')
+def orders_update_page():
+    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+    sql_engine = sql.create_engine(connect_string)
+    df = pd.read_sql_table('orders', sql_engine)
+    df1 = df.copy()
+    df1['Update'] = 'update'
+    df1['Delete'] = 'delete'
+    for n in range(len(df1)):
+        df1.iloc[n,-1] = "<a href=/orders/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
+        df1.iloc[n,-2] = "<a href=/orders/update/"+ str(df1.loc[n,'id']) + ">update</a>"
+    html = df1.to_html(render_links=True,escape=False)
+    return html
+
+@app.route('/orders/update', methods = ['GET','POST'])
+def update_order():
+    if request.method=='POST':
+        update_record = Orders.query.filter_by(id=request.form['entry']).first()
+        update_record.purchase_date = request.form['purchase_date']
+        update_record.price = request.form['price']
+        update_record.cash_payment = request.form['cash_payment']
+        update_record.prepaid_payment = request.form['prepaid_payment']
+        update_record.fk_customer_id = request.form['fk_customer_id']
+        update_record.fk_product_id = request.form['fk_product_id']
+        db.session.commit()
+        
+    return redirect(url_for('read_orders'))#render_template('customer_update.html',title='update_customer')
+
+@app.route('/orders/update/<int:order_record>',methods=['GET','POST'])
+def order_update1(order_record):
+    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+    sql_engine = sql.create_engine(connect_string)
+    df = pd.read_sql_table('orders', sql_engine)
+    df1 = df.loc[df.id==int(order_record),:]
+    html = df1.to_html(escape=False)
+    #customer_update_code = pd.read_html('customer_update.html')
+    return html + "<br><br>" + render_template('orders_update.html')
 
 ### delete order
 @app.route('/orders/delete/<int:order_>')

@@ -1,23 +1,19 @@
 <html>
-    <form action="http://localhost:5000/orders/add/order" method = "post">
+
+    <form action="http://localhost:5000/orders/update" method = "post">
+        <label for="entry">Record ID</label>
+        <input type="text" id = 'entry' name='entry'><br><br>
         <label for="name2">Purchase Date:</label>
-        <br>
-        <input type="text" id="date" name="date"><br><br>
+        <input type="text" id="purchase_date" name="purchase_date"><br><br>
         <label for="sname">Price:</label>
-        <br>
         <input type="text" id="price" name="price"><br><br>
-        <label for="jname">Cash Payment:</label>
-        <br>
+        <label for="jname">Paid in Cash:</label>
         <input type="text" id="cash_payment" name="cash_payment"><br><br>
-        <label for="sname">Prepaid Payment:</label>
-        <br>
+        <label for="sname">Used Prepay Funds:</label>
         <input type="text" id="prepaid_payment" name="prepaid_payment"><br><br>
         <label for="sname">Customer ID:</label>
-        <br>
         <input type="text" id="fk_customer_id" name="fk_customer_id"><br><br>
         <label for="sname">Product ID:</label>
-        <br>
         <input type="text" id="fk_product_id" name="fk_product_id"><br><br>
         <input type="submit" value="Submit">
       </form>
-<html>
