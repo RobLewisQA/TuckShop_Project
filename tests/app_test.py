@@ -1,6 +1,7 @@
 from flask import url_for
 from flask_testing import TestCase
-from application import db, app
+from application import db, app, models
+
 
 # Create the base class
 class TestBase(TestCase):
@@ -17,8 +18,17 @@ class TestBase(TestCase):
     def setUp(self):
         # Create tables
         db.create_all()
+        p_names=['Aero','Dairy Milk','Twirl','Galaxy']
+        p_brands=['Nestle',"Cadbury's","Cadbury's",'Mars']
+        p_qtys=[10,10,9,9]
+        p_costs=[0.2,0.3,0.3,0.2]
+        p_prices=[0.3,0.4,0.4,0.3]
+        p_list = []
+        for p in range(len(p_names)):
+            db.session.add(models.Products(product_name = p_names[p],product_brand=p_brands[p],quantity_in_stock = p_qtys[p],cost_per_item = p_costs[p],price = p_prices[p]))
+        customer_add = models.Customers(first_name="John",last_name = "Doe",customer_address = '1 The Mall, London',customer_dob='2020-07-05',prepaid_balance=0)
+        db.session.add(customer_add)
         db.session.commit()
-
 
     def tearDown(self):
         db.session.remove()
@@ -45,10 +55,10 @@ class TestRoutes(TestBase):
         response = self.client.get(url_for('add_customer'),follow_redirects=True)
         assert response.status_code == 200
         assert response.data != ''
-#def test_home_redir():
-#    response = app.test_client().get('/home')
-#    assert response.status_code == 200
-#    assert response.data != ''
+    def post_test_customer(self):
+        response = self.client.post(url_for('add_customers'),data = dict(first_namee='FirstName',last_name='LastName',customer_address='CustomerAddress',customer_dob='2000-01-01',prepaid_balance=0.00),follow_redirects=True)
+        self.assertIn(b"FIrstName",response.data)
+        self.assertIn(b"CustomerAddress",response.data)
 
 ##b. read customers - test page response, links
     def test_read_customers(self):
@@ -73,15 +83,18 @@ class TestRoutes(TestBase):
         assert response.status_code == 200
         assert response.data != ''
     def post_test_product(self):
-        response1 = self.client.post(url_for('add_order'),data = dict(product_namee='Twix',product_brand='Mars',quantity_in_stock=11,cost_per_item=0.35,price=0.5),follow_redirects=True)
+        response1 = self.client.post(url_for('add_products'),data = dict(product_namee='Twix',product_brand='Mars',quantity_in_stock=11,cost_per_item=0.35,price=0.5),follow_redirects=True)
         assert response1.data != ""
         self.assertIn(b"Twix",response1.data)
         self.assertIn(b"11",response1.data)
+        response = self.client.get(url_for('read_products'))
+        self.assertIn(b"Twix",response.data)
 ##b. read products - test page response, links
     def test_read_products(self):
         response = self.client.get(url_for('read_products'),follow_redirects=True)
         assert response.status_code == 200
         assert response.data != ''
+        self.assertIn(b"Aero",response.data)
 ##c.update products - test update page response, table, links
 ##c. update products2 - test form response, table view, post
     def test_products_update_page(self):
