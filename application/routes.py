@@ -413,7 +413,7 @@ def order_update1(order_record):
     df_row = df.loc[df.id==int(order_record),:]
     df1 = pd.read_sql_table('customers', sql_engine)
     df2 = pd.read_sql_table('products', sql_engine)
-    df_join = pd.merge(left=(pd.merge(df_row,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['id_x','purchase_date','price_x','cash_payment','prepaid_payment','price_x','fk_customer_id','fk_product_id','first_name','last_name','product_name','product_brand']]
+    df_join = pd.merge(left=(pd.merge(df_row,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['id_x','purchase_date','price_x','cash_payment','prepaid_payment','price_x','fk_customer_id','fk_product_id','first_name','last_name','product_name','brand_name']]
     
     html = df_join.to_html(escape=False)
     #customer_update_code = pd.read_html('customer_update.html')
