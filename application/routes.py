@@ -76,7 +76,7 @@ def customer_update_page():
         df1.iloc[n,-1] = "<a href=/customers/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
         df1.iloc[n,-2] = "<a href=/customers/update/"+ str(df1.loc[n,'id']) + ">update</a>"
     html = df1.to_html(render_links=True,escape=False)
-    return html
+    return ('<h1>Update Customers</h1><br>')+ html
 ### customer select_test ################################################
 
 @app.route('/customers/update', methods = ['GET','POST'])
@@ -102,7 +102,7 @@ def customer_update1(customer_record):
     html = df1.to_html(escape=False)
     #customer_update_code = pd.read_html('customer_update.html')
     
-    return html + "<br><br>" + render_template('customer_update.html')
+    return ('<h1>Update Customers</h1><br>')+ html + "<br><br>" + render_template('customer_update.html')
 
 
 
@@ -214,6 +214,10 @@ def read_products():
     connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
     sql_engine = sql.create_engine(connect_string)
     df = pd.read_sql_table('products', sql_engine)
+    
+    #df.loc[df.cost_per_item.str.len() <5]
+    df.price = ('£'+df.price.astype('str')).str.ljust(5,'0')
+    df.cost_per_item = ('£'+df.cost_per_item.astype('str')).str.ljust(5,'0')
     html = df.to_html()
     #items = Products.query.all()
     #table = ItemTable(items)
@@ -232,7 +236,7 @@ def products_update_page():
         df1.iloc[n,-1] = "<a href=/products/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
         df1.iloc[n,-2] = "<a href=/products/update/"+ str(df1.loc[n,'id']) + ">update</a>"
     html = df1.to_html(render_links=True,escape=False)
-    return html
+    return ('<h1>Update Product List</h1><br>')+ html
 
 @app.route('/products/update', methods = ['GET','POST'])
 def update_product():
@@ -255,7 +259,7 @@ def product_update1(product_record):
     df1 = df.loc[df.id==int(product_record),:]
     html = df1.to_html(escape=False)
     #customer_update_code = pd.read_html('customer_update.html')
-    return html + "<br><br>" + render_template('product_update.html')
+    return ('<h1>Update Products List</h1><br>')+html + "<br><br>" + render_template('product_update.html')
 
 ## delete products
 @app.route('/products/delete/<int:product_>')
@@ -352,8 +356,9 @@ def read_orders():
     df1 = pd.read_sql_table('customers', sql_engine)
     df2 = pd.read_sql_table('products', sql_engine)
     df_join = pd.merge(left=(pd.merge(df,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['purchase_date','first_name','last_name','product_name','product_brand','price_x','id_x']]
+    df_join.price_x = ('£'+df_join.price_x.astype('str')).str.ljust(5,'0')
     html = df_join.to_html()
-    return ('<h1>Orders</h1><br>')+ html + ('<br> <a href="/orders/add">Add new order</a> </br>')+('<br> <a href="/orders/update2">Edit an order</a> </br>')+('<br> <a href="/orders/add">Add new order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+    return ('<h1>Orders</h1><br>')+ html + ('<br><a href="/orders/add">Add new order</a> </br>')+('<a href="/orders/update2">Edit an order</a> </br>')+('<br> <a href="/orders/summary">Sales summary</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+(' <a href="/customers">Navigate to Customers</a> </br>')
 
 
 @app.route('/orders/summary')
@@ -382,7 +387,7 @@ def orders_update_page():
         df1.iloc[n,-1] = "<a href=/orders/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
         df1.iloc[n,-2] = "<a href=/orders/update/"+ str(df1.loc[n,'id']) + ">update</a>"
     html = df1.to_html(render_links=True,escape=False)
-    return html
+    return ('<h1>Update Orders</h1><br>')+html
 
 @app.route('/orders/update', methods = ['GET','POST'])
 def update_order():
@@ -406,7 +411,7 @@ def order_update1(order_record):
     df1 = df.loc[df.id==int(order_record),:]
     html = df1.to_html(escape=False)
     #customer_update_code = pd.read_html('customer_update.html')
-    return html + "<br><br>" + render_template('orders_update.html')
+    return ('<h1>Update Orders</h1><br>')+html + "<br><br>" + render_template('orders_update.html')
 
 ### delete order
 @app.route('/orders/delete/<int:order_>')
