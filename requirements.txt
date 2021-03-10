@@ -1,5 +1,5 @@
 Flask
-Flask-SQLAlchemy
+Flask-SQLAlchemy==2.1.0
 SQLAlchemy
 pymysql
 flask_table
@@ -8,3 +8,6 @@ flask
 flask-wtf
 wtforms
 mysqlclient
+flask_testing
+pytest
+pytest-cov

@@ -1,12 +1,12 @@
 from flask import Flask, redirect, request, url_for,render_template
 from application import app, db
-from application.models import Products,ItemTable,Orders,OrdersTable,Customers,CustomersTable,SummaryOrder,OrdersSummary
-from app import BasicForm_customers#, SimpleForm_customers
+from application.models import Products,ItemTable,Orders,OrdersTable,Customers,CustomersTable#,SummaryOrder,OrdersSummary
+#from app import BasicForm_customers#, SimpleForm_customers
 import sqlalchemy as sql
 import pandas as pd
 
 @app.route('/')
-def about():
+def home():
     return render_template('home.html',title='home')
 ## create customers
 @app.route('/customers/add')
@@ -27,22 +27,22 @@ def add_customers():
         return redirect(url_for('read_customers'))
 
 ##### test add_customer ####
-@app.route('/customers/add/customer_test',methods=['GET','POST'])
-def add_customer_test():
-        error = ""
-        form = BasicForm_customers()
-
-        if request.method == 'POST':
-            first_name = form.first_name#.data
-            last_name = form.last_name#.data
-            customer_address = form.customer_address.data
-            customer_dob = form.customer_dob.data
-            prepaid_balance = form.prepaid_balance.data
-
-            if len(first_name) == 0 or len(last_name) == 0:
-                error = "That didn't work"
-            else:
-                return 'thank_you'
+#@app.route('/customers/add/customer_test',methods=['GET','POST'])
+#def add_customer_test():
+#        error = ""
+#        form = BasicForm_customers()##
+#
+#        if request.method == 'POST':
+#            first_name = form.first_name#.data
+#            last_name = form.last_name#.data
+#            customer_address = form.customer_address.data
+#            customer_dob = form.customer_dob.data
+#            prepaid_balance = form.prepaid_balance.data#
+#
+#            if len(first_name) == 0 or len(last_name) == 0:
+#                error = "That didn't work"
+#            else:
+#                return 'thank_you'
 
         return render_template('customerform_wtf.html', form=form, message=error)
 
