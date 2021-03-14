@@ -405,20 +405,21 @@ def orders_update_page():
 @app.route('/orders/update', methods = ['GET','POST'])
 def update_order():
     if request.method=='POST':
-        update_record = Orders.query.filter_by(id=request.form['entry']).first()
-        update_record.purchase_date = request.form['purchase_date']
-        update_record.price = request.form['price']
-        update_record.cash_payment = request.form['cash_payment']
-        update_record.prepaid_payment = request.form['prepaid_payment']
-        update_record.fk_customer_id = request.form['fk_customer_id']
-        if update_record.fk_product_id != request.form['fk_product_id']:
-            Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) + 1  
-            update_record.fk_product_id = request.form['fk_product_id']
-            db.session.commit()
-            Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) - 1  
-        else:
-            update_record.fk_product_id = request.form['fk_product_id']
+        page=''
+    update_record = Orders.query.filter_by(id=request.form['entry']).first()
+    update_record.purchase_date = request.form['purchase_date']
+    update_record.price = request.form['price']
+    update_record.cash_payment = request.form['cash_payment']
+    update_record.prepaid_payment = request.form['prepaid_payment']
+    update_record.fk_customer_id = request.form['fk_customer_id']
+    if update_record.fk_product_id != request.form['fk_product_id']:
+        Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) + 1  
+        update_record.fk_product_id = request.form['fk_product_id']
         db.session.commit()
+        Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) - 1  
+    else:
+        update_record.fk_product_id = request.form['fk_product_id']
+    db.session.commit()
     return redirect(url_for('read_orders'))#render_template('customer_update.html',title='update_customer')
 
 @app.route('/orders/update/<int:order_record>',methods=['GET','POST'])
