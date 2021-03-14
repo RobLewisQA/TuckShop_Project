@@ -48,6 +48,10 @@ class TestRoutes_general(TestBase):
         response = self.client.get('/')
         assert response.status_code == 200
         assert response.data != ''
+    def test_customer_(self):
+        response = self.client.get('/')
+        assert response.status_code == 200
+        assert response.data != ''
 
 class TestRoutes_create_read(TestBase):
     ####### add + read customer
@@ -103,6 +107,8 @@ class TestRoutes_update_read(TestBase):
         response = self.client.get(url_for('customer_update_page'),follow_redirects=True)
         assert response.status_code == 200
         assert response.data != ''
+        df = pd.read_html(response.data, header=0)[0]
+        assert len(df) > 1
     ####### update + read product
     def test_products_update_submission(self):
         self.client.post('/products/update',data = dict(entry = 1, product_name='KitKat',product_brand='Nestle',quantity_in_stock=10,cost_per_item=0.4,price= 0.65),follow_redirects=True)
@@ -116,6 +122,8 @@ class TestRoutes_update_read(TestBase):
         response = self.client.get(url_for('orders_update_page'),follow_redirects=True)
         assert response.status_code == 200
         assert response.data != ''
+        df = pd.read_html(response.data, header=0)[0]
+        assert len(df) > 0
     
     def test_orders_update_subimission(self):
         self.client.post('/orders/update',data = dict(entry = 1, purchase_date='2021-03-14',price=0.4,cash_payment=0.4,prepaid_payment=0.0,fk_customer_id= 3, fk_product_id=3),follow_redirects=True)

@@ -1,6 +1,6 @@
 from flask import Flask, redirect, request, url_for,render_template
 from application import app, db
-from application.models import Products,ItemTable,Orders,OrdersTable,Customers,CustomersTable#,SummaryOrder,OrdersSummary
+from application.models import Products,Orders,Customers #,SummaryOrder,OrdersSummary,ItemTable,OrdersTable,,CustomersTable
 #from app import BasicForm_customers#, SimpleForm_customers
 import sqlalchemy as sql
 import pandas as pd
@@ -174,25 +174,27 @@ def update_customers():
 @app.route('/customers/delete/<int:customer_>', methods = ['GET','POST'])
 def delete_customers(customer_):
     if request.method=='POST':
-        if Orders.query.filter_by(fk_customer_id=customer_).count() == 0:
-            customer_to_delete = Customers.query.filter_by(id=customer_).first()
-            db.session.delete(customer_to_delete)
-            db.session.commit()
-            return redirect(url_for('read_customers'))
-        else: 
-            return "Oops! You tried to delete a product that has already been purchased" +('<br> <a href="/customers">Return to Customers?</a> </br>')
+        page = ''
+    if Orders.query.filter_by(fk_customer_id=customer_).count() == 0:
+        customer_to_delete = Customers.query.filter_by(id=customer_).first()
+        db.session.delete(customer_to_delete)
+        db.session.commit()
+        return redirect(url_for('read_customers'))
+    else: 
+        return "Oops! You tried to delete a product that has already been purchased" +('<br> <a href="/customers">Return to Customers?</a> </br>')
 
-@app.route('/customers/delete', methods=['GET','POST'])
-def customer_delete_page():
-    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
-    sql_engine = sql.create_engine(connect_string)
-    df = pd.read_sql_table('customers', sql_engine)
-    df1 = df.copy()
-    df1['Select'] = 'select'
-    for n in range(len(df1)):
-        df1.iloc[n,-1] = "<a href=/customers/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
-    html = df1.to_html(render_links=True,escape=False)
-    return html
+# @app.route('/customers/delete', methods=['GET','POST'])
+# def customer_delete_page():
+#     connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+#     sql_engine = sql.create_engine(connect_string)
+#     df = pd.read_sql_table('customers', sql_engine)
+#     df1 = df.copy()
+#     df1['Select'] = 'select'
+#     for n in range(len(df1)):
+#         df1.iloc[n,-1] = "<a href=/customers/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
+#     html = df1.to_html(render_links=True,escape=False)
+#     return html
+    
 ## create products
 @app.route('/products/add', methods=['GET','POST'])
 def add_product():
@@ -210,7 +212,7 @@ def add_products():
         new_product_quantity = request.form['quantity']
         new_product_itemcost = request.form['itemcost']
         new_product_price = request.form['price']
-        new_product = Products(product_name=new_product_name.replace('_',' '),product_brand=new_product_brand.replace('_',' '),quantity_in_stock=new_product_quantity,cost_per_item=new_product_itemcost,price=new_product_price)
+        new_product = Products(product_name=new_product_name,product_brand=new_product_brand,quantity_in_stock=new_product_quantity,cost_per_item=new_product_itemcost,price=new_product_price)
         db.session.add(new_product)
         db.session.commit()
     return redirect(url_for('read_products'))
@@ -278,17 +280,17 @@ def delete_products(product_):
         return redirect(url_for('read_products'))
     else: return "Oops! You tried to delete a product that has already been purchased" +('<br> <a href="/products">Return to Products?</a> </br>')
 
-@app.route('/products/delete')
-def product_delete_page():
-    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
-    sql_engine = sql.create_engine(connect_string)
-    df = pd.read_sql_table('products', sql_engine)
-    df1 = df.copy()
-    df1['Select'] = 'select'
-    for n in range(len(df1)):
-        df1.iloc[n,-1] = "<a href=/products/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
-    html = df1.to_html(render_links=True,escape=False)
-    return html 
+# @app.route('/products/delete')
+# def product_delete_page():
+#     connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+#     sql_engine = sql.create_engine(connect_string)
+#     df = pd.read_sql_table('products', sql_engine)
+#     df1 = df.copy()
+#     df1['Select'] = 'select'
+#     for n in range(len(df1)):
+#         df1.iloc[n,-1] = "<a href=/products/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
+#     html = df1.to_html(render_links=True,escape=False)
+#     return html 
 '''
 #def read():
 #    all_products = Products.query.all()
@@ -321,21 +323,22 @@ def add_order():
 @app.route('/orders/add/order',methods=['GET','POST'])
 def add_orders():
     if request.method=='POST':
-        new_purchase_date = request.form['date']
-        new_product_price = request.form['price']
-        new_cash_payment = request.form['cash_payment']
-        new_prepaid_payment = request.form['prepaid_payment']
-        new_fk_customer_id = request.form['fk_customer_id']
-        new_fk_product_id = request.form['fk_product_id']
-        if float(new_product_price) == float(Products.query.filter_by(id = new_fk_product_id).first().price):
-            Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock) - 1
-            db.session.commit()
-            new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,prepaid_payment=new_prepaid_payment,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)
-            db.session.add(new_order)
-            db.session.commit()
-            return redirect(url_for('read_orders')) #f'{int(Products.query.filter_by(id = new_fk_product_id).first()).quantity_in_stock}'
-        else:
-            return str(float(Products.query.filter_by(id = new_fk_product_id).first().price))+ "Oops, that didn't work"+('<br> <a href="/orders/add">Try again?</a> </br>')
+        page = ''
+    new_purchase_date = request.form['date']
+    new_product_price = request.form['price']
+    new_cash_payment = request.form['cash_payment']
+    new_prepaid_payment = request.form['prepaid_payment']
+    new_fk_customer_id = request.form['fk_customer_id']
+    new_fk_product_id = request.form['fk_product_id']
+    if float(new_product_price) == float(Products.query.filter_by(id = new_fk_product_id).first().price):
+        Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock) - 1
+        db.session.commit()
+        new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,prepaid_payment=new_prepaid_payment,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)
+        db.session.add(new_order)
+        db.session.commit()
+        return redirect(url_for('read_orders')) #f'{int(Products.query.filter_by(id = new_fk_product_id).first()).quantity_in_stock}'
+    else:
+        return str(float(Products.query.filter_by(id = new_fk_product_id).first().price))+ "Oops, that didn't work"+('<br> <a href="/orders/add">Try again?</a> </br>')
         #str(Products.query.filter_by(id = new_fk_product_id).first().quantity_in_stock) + str(int(Products.query.filter_by(id = new_fk_product_id).first().quantity_in_stock) - 1) + "   oops, that didn't work"+('<br> <a href="/orders/add">Try again?</a> </br>')
         #redirect(url_for('read_orders'))
 
@@ -442,33 +445,34 @@ def order_update1(order_record):
 @app.route('/orders/delete/<int:order_>', methods = ['GET','POST'])
 def delete_orders(order_):
     if request.method == 'POST':
-        #order_to_delete = Orders.query.filter_by()
-        order_to_delete = Orders.query.filter_by(id=order_).first()
-        #order_to_delete.quantity_in_stock = Products.query.filter_by(Orders.fk_product_id = order_to_delete.)
-        order_fk_id = order_to_delete.fk_product_id
-        Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock) + 1  
-        db.session.delete(order_to_delete)
-        db.session.commit()
+        page=''
+    #order_to_delete = Orders.query.filter_by()
+    order_to_delete = Orders.query.filter_by(id=order_).first()
+    #order_to_delete.quantity_in_stock = Products.query.filter_by(Orders.fk_product_id = order_to_delete.)
+    order_fk_id = order_to_delete.fk_product_id
+    Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock) + 1  
+    db.session.delete(order_to_delete)
+    db.session.commit()
     return redirect(url_for('read_orders'))
 
-@app.route('/orders/delete')
-def order_delete_page():
-    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
-    sql_engine = sql.create_engine(connect_string)
-    df = pd.read_sql_table('orders', sql_engine)
-    df1 = df.copy()
-    df1['Select'] = 'select'
-    for n in range(len(df1)):
-        df1.iloc[n,-1] = "<a href=/orders/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
-    html = df1.to_html(render_links=True,escape=False)
-    return html
-#@app.route('/products/delete/<int:order>')
-#def delete_orders1(order_):
-#    Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock) - 1
-#    db.session.commit()
-#    new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,prepaid_payment=new_prepaid_payment,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)
-##   db.session.add(new_order)
-#    db.session.commit()
+# @app.route('/orders/delete')
+# def order_delete_page():
+#     connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+#     sql_engine = sql.create_engine(connect_string)
+#     df = pd.read_sql_table('orders', sql_engine)
+#     df1 = df.copy()
+#     df1['Select'] = 'select'
+#     for n in range(len(df1)):
+#         df1.iloc[n,-1] = "<a href=/orders/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
+#     html = df1.to_html(render_links=True,escape=False)
+#     return html
+@app.route('/products/delete/<int:order>')
+def delete_orders1(order_):
+   Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock) - 1
+   db.session.commit()
+   new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,prepaid_payment=new_prepaid_payment,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)
+#   db.session.add(new_order)
+   db.session.commit()
 
     #if Orders.query.filter_by(fk_product_id=product_).count() == 0:
     #    product_to_delete = Products.query.filter_by(id=product_).first()
