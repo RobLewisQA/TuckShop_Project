@@ -8,6 +8,6 @@ flask
 flask-wtf
 wtforms
 mysqlclient
-flask_testing
+flask-testing
 pytest
 pytest-cov

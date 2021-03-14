@@ -9,8 +9,10 @@ import pandas as pd
 def home():
     return render_template('home.html',title='home')
 ## create customers
-@app.route('/customers/add')
+@app.route('/customers/add', methods=['GET','POST'])
 def add_customer():
+    if request.method == 'POST':
+        page = ''
     return render_template('customerform.html',title='add_customer')
 
 @app.route('/customers/add/customer',methods=['GET','POST'])
@@ -81,6 +83,7 @@ def customer_update_page():
 
 @app.route('/customers/update', methods = ['GET','POST'])
 def update_customer():
+    update_record = Customers.query.filter_by(id=request.form['entry']).first()
     if request.method=='POST':
         update_record = Customers.query.filter_by(id=request.form['entry']).first()
         update_record.first_name = request.form['first_name']
@@ -88,7 +91,7 @@ def update_customer():
         update_record.customer_address = request.form['customer_address']
         update_record.customer_dob = request.form['customer_dob']
         update_record.prepaid_balance = request.form['prepaid_balance']
-        db.session.commit()
+    db.session.commit()
         
     return redirect(url_for('read_customers'))#render_template('customer_update.html',title='update_customer')
 
@@ -168,16 +171,18 @@ def update_customers():
 ##########################################################################
 
 ## delete customers
-@app.route('/customers/delete/<int:customer_>')
+@app.route('/customers/delete/<int:customer_>', methods = ['GET','POST'])
 def delete_customers(customer_):
-    if Orders.query.filter_by(fk_customer_id=customer_).count() == 0:
-        customer_to_delete = Customers.query.filter_by(id=customer_).first()
-        db.session.delete(customer_to_delete)
-        db.session.commit()
-        return redirect(url_for('read_customers'))
-    else: return "Oops! You tried to delete a product that has already been purchased" +('<br> <a href="/customers">Return to Customers?</a> </br>')
+    if request.method=='POST':
+        if Orders.query.filter_by(fk_customer_id=customer_).count() == 0:
+            customer_to_delete = Customers.query.filter_by(id=customer_).first()
+            db.session.delete(customer_to_delete)
+            db.session.commit()
+            return redirect(url_for('read_customers'))
+        else: 
+            return "Oops! You tried to delete a product that has already been purchased" +('<br> <a href="/customers">Return to Customers?</a> </br>')
 
-@app.route('/customers/delete')
+@app.route('/customers/delete', methods=['GET','POST'])
 def customer_delete_page():
     connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
     sql_engine = sql.create_engine(connect_string)
@@ -189,8 +194,10 @@ def customer_delete_page():
     html = df1.to_html(render_links=True,escape=False)
     return html
 ## create products
-@app.route('/products/add')
-def add_item():
+@app.route('/products/add', methods=['GET','POST'])
+def add_product():
+    if request.method == 'POST':
+        page = ''
     return render_template('stockform.html',title='add_item')
 
 @app.route('/products/add/item',methods=['GET','POST'])
@@ -206,7 +213,7 @@ def add_products():
         new_product = Products(product_name=new_product_name.replace('_',' '),product_brand=new_product_brand.replace('_',' '),quantity_in_stock=new_product_quantity,cost_per_item=new_product_itemcost,price=new_product_price)
         db.session.add(new_product)
         db.session.commit()
-        return redirect(url_for('read_products'))
+    return redirect(url_for('read_products'))
 
 ## read products
 @app.route('/products')
@@ -262,7 +269,7 @@ def product_update1(product_record):
     return ('<h1>Update Products List</h1><br>')+html + "<br><br>" + render_template('product_update.html') + ('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')
 
 ## delete products
-@app.route('/products/delete/<int:product_>')
+@app.route('/products/delete/<int:product_>',methods=['GET','POST'])
 def delete_products(product_):
     if Orders.query.filter_by(fk_product_id=product_).count() == 0:
         product_to_delete = Products.query.filter_by(id=product_).first()
@@ -292,14 +299,18 @@ def product_delete_page():
 '''
 ## create orders
 
-@app.route('/orders/add')
+@app.route('/orders/add', methods = ['GET','POST'])
 def add_order():
-    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
-    sql_engine = sql.create_engine(connect_string)
-    df = pd.read_sql_table('products', sql_engine)
-    #df1 = df.loc[df.id==int(customer_record),:]
-    html = df.to_html(escape=False)
+    html = ""
+    if request.method == 'POST':
+        connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+        sql_engine = sql.create_engine(connect_string)
+        df = pd.read_sql_table('products', sql_engine)
+        #df1 = df.loc[df.id==int(customer_record),:]
+        html = df.to_html(escape=False)
     return render_template('orderform.html',title='add_order') + '<br><br>' + html +('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+#return render_template('orderform.html',title='add_order') + '<br><br>' + html +('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+
 #@app.route('/orders/add/order')
 #def add_orders(date,price,cash_payment,prepaid_payment,fk_customer_id,fk_product_id):
 #    new_product = Products(product_name=name,product_brand=brand,quantity_in_stock=quantity,cost_per_item=itemcost)
@@ -400,36 +411,43 @@ def update_order():
         update_record.cash_payment = request.form['cash_payment']
         update_record.prepaid_payment = request.form['prepaid_payment']
         update_record.fk_customer_id = request.form['fk_customer_id']
-        update_record.fk_product_id = request.form['fk_product_id']
+        if update_record.fk_product_id != request.form['fk_product_id']:
+            Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) + 1  
+            update_record.fk_product_id = request.form['fk_product_id']
+            db.session.commit()
+            Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) - 1  
+        else:
+            update_record.fk_product_id = request.form['fk_product_id']
         db.session.commit()
-        
     return redirect(url_for('read_orders'))#render_template('customer_update.html',title='update_customer')
 
 @app.route('/orders/update/<int:order_record>',methods=['GET','POST'])
 def order_update1(order_record):
+    if request.method == 'POST':
+        connect_string = ""
     connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
     sql_engine = sql.create_engine(connect_string)
     df = pd.read_sql_table('orders', sql_engine)
     df_row = df.loc[df.id==int(order_record),:]
     df1 = pd.read_sql_table('customers', sql_engine)
     df2 = pd.read_sql_table('products', sql_engine)
-    df_join = pd.merge(left=(pd.merge(df_row,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['id_x','purchase_date','price_x','cash_payment','prepaid_payment','price_x','fk_customer_id','fk_product_id','first_name','last_name','product_name','brand_name']]
+    df_join = pd.merge(left=(pd.merge(df_row,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['id_x','purchase_date','price_x','cash_payment','prepaid_payment','price_x','fk_customer_id','fk_product_id','first_name','last_name','product_name','product_brand']]
     
     html = df_join.to_html(escape=False)
     #customer_update_code = pd.read_html('customer_update.html')
     return ('<h1>Update Orders</h1><br>')+html + "<br><br>" + render_template('orders_update.html')
 
 ### delete order
-@app.route('/orders/delete/<int:order_>')
+@app.route('/orders/delete/<int:order_>', methods = ['GET','POST'])
 def delete_orders(order_):
-
-    #order_to_delete = Orders.query.filter_by()
-    order_to_delete = Orders.query.filter_by(id=order_).first()
-    #order_to_delete.quantity_in_stock = Products.query.filter_by(Orders.fk_product_id = order_to_delete.)
-    order_fk_id = order_to_delete.fk_product_id
-    Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock) + 1  
-    db.session.delete(order_to_delete)
-    db.session.commit()
+    if request.method == 'POST':
+        #order_to_delete = Orders.query.filter_by()
+        order_to_delete = Orders.query.filter_by(id=order_).first()
+        #order_to_delete.quantity_in_stock = Products.query.filter_by(Orders.fk_product_id = order_to_delete.)
+        order_fk_id = order_to_delete.fk_product_id
+        Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock) + 1  
+        db.session.delete(order_to_delete)
+        db.session.commit()
     return redirect(url_for('read_orders'))
 
 @app.route('/orders/delete')
