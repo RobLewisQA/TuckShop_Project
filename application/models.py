@@ -27,7 +27,8 @@ class Orders(db.Model):
     purchase_date=db.Column(db.Date,nullable=False)
     price=db.Column(db.Float,nullable=False)
     cash_payment=db.Column(db.Float,nullable=False)
-    prepaid_payment = db.Column(db.Float,nullable=False)
+    prepaid_payment = db.Column(db.Float,nullable=False) 
+    quantity_ordered = db.Column(db.Integer,nullable=True) # to falsify
     fk_customer_id=db.Column(db.Integer,db.ForeignKey('customers.id'),nullable=False)
     #fk_product_id = db.Column(db.Integer,nullable=False)
     fk_product_id=db.Column(db.Integer,db.ForeignKey('products.id'),nullable=False)

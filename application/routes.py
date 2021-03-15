@@ -61,7 +61,7 @@ def read_customers():
     df = pd.read_sql_table('customers', sql_engine)
     html = df.to_html()
 
-    return ('<h1>Customers</h1><br>')+html+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/customers/delete" type="button">Delete customer</a> </br>')+('<br> <a href="/customers/update2" type="button">Update customer records</a> </br>')+('<br><br> <a href="/products">Navigate to Products</a><br>')+('<a href="/orders">Navigate to Orders</a>')
+    return ('<h1>Customers</h1><br>')+html+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/customers/update2" type="button">Update customer records</a> </br>')+('<br><br> <a href="/products">Navigate to Products</a><br>')+('<a href="/orders">Navigate to Orders</a>')
     #('<h1>Customers</h1><br>')+table.__html__()+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')
 
 
@@ -330,10 +330,11 @@ def add_orders():
     new_prepaid_payment = request.form['prepaid_payment']
     new_fk_customer_id = request.form['fk_customer_id']
     new_fk_product_id = request.form['fk_product_id']
+    new_quantity_ordered = request.form['quantity_ordered']
     if float(new_product_price) == float(Products.query.filter_by(id = new_fk_product_id).first().price):
-        Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock) - 1
+        Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock) - int(new_quantity_ordered)
         db.session.commit()
-        new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,prepaid_payment=new_prepaid_payment,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)
+        new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,prepaid_payment=new_prepaid_payment,quantity_ordered=new_quantity_ordered,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)
         db.session.add(new_order)
         db.session.commit()
         return redirect(url_for('read_orders')) #f'{int(Products.query.filter_by(id = new_fk_product_id).first()).quantity_in_stock}'
@@ -369,23 +370,23 @@ def read_orders():
     df = pd.read_sql_table('orders', sql_engine)
     df1 = pd.read_sql_table('customers', sql_engine)
     df2 = pd.read_sql_table('products', sql_engine)
-    df_join = pd.merge(left=(pd.merge(df,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['purchase_date','first_name','last_name','product_name','product_brand','price_x','id_x']]
+    df_join = pd.merge(left=(pd.merge(df,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['purchase_date','first_name','last_name','product_name','product_brand','price_x','quantity_ordered','id_x']]
     df_join.price_x = ('£'+df_join.price_x.astype('str')).str.ljust(5,'0')
     html = df_join.to_html()
-    return ('<h1>Orders</h1><br>')+ html + ('<br><a href="/orders/add">Add new order</a> </br>')+('<a href="/orders/update2">Edit an order</a> </br>')+('<br> <a href="/orders/summary">Sales summary</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+(' <a href="/customers">Navigate to Customers</a> </br>')
+    return ('<h1>Orders</h1><br>')+ html + ('<br><a href="/orders/add">Add new order</a> </br>')+('<a href="/orders/update2">Edit an order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+(' <a href="/customers">Navigate to Customers</a> </br>')
 
 
-@app.route('/orders/summary')
-def read_order_summary():
-    connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
-    sql_engine = sql.create_engine(connect_string)
-    df = pd.read_sql_table('orders', sql_engine)
-    df1 = pd.read_sql_table('customers', sql_engine)
-    df2 = pd.read_sql_table('products', sql_engine)
-    df_join = pd.merge(left=(pd.merge(df,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['purchase_date','first_name','last_name','product_name','product_brand','price_x','id_x']]
-    df_groups = df_join.groupby(['product_brand']).purchase_date.count().to_frame()
-    html = df_groups.to_html()
-    return ('<h1>Orders</h1><br>')+ html + ('<br> <a href="/orders">Orders Home Page</a> </br>')+('<br> <a href="/orders/add">Add new order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+# @app.route('/orders/summary')
+# def read_order_summary():
+#     connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
+#     sql_engine = sql.create_engine(connect_string)
+#     df = pd.read_sql_table('orders', sql_engine)
+#     df1 = pd.read_sql_table('customers', sql_engine)
+#     df2 = pd.read_sql_table('products', sql_engine)
+#     df_join = pd.merge(left=(pd.merge(df,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['purchase_date','first_name','last_name','product_name','product_brand','price_x','id_x']]
+#     df_groups = df_join.groupby(['product_brand']).purchase_date.count().to_frame()
+#     html = df_groups.to_html()
+#     return ('<h1>Orders</h1><br>')+ html + ('<br> <a href="/orders">Orders Home Page</a> </br>')+('<br> <a href="/orders/add">Add new order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 
 ### update order
 
@@ -415,14 +416,25 @@ def update_order():
     update_record.cash_payment = request.form['cash_payment']
     update_record.prepaid_payment = request.form['prepaid_payment']
     update_record.fk_customer_id = request.form['fk_customer_id']
+    update_quantity_ordered = request.form['quantity_ordered']
     if update_record.fk_product_id != request.form['fk_product_id']:
-        Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) + 1  
-        update_record.fk_product_id = request.form['fk_product_id']
+        Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) + (int(update_record.quantity_ordered))
         db.session.commit()
-        Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) - 1  
-    else:
         update_record.fk_product_id = request.form['fk_product_id']
-    db.session.commit()
+        update_record.quantity_ordered = request.form['quantity_ordered']
+        Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) - (int(update_record.quantity_ordered)-(int(update_record.quantity_ordered)-int(update_quantity_ordered)))
+        db.session.commit()    
+    elif update_record.fk_product_id == request.form['fk_product_id']:
+        #Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = 500 #int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) + (int(update_record.quantity_ordered)-(int(update_record.quantity_ordered)-int(update_quantity_ordered)))
+        db.session.commit()
+        update_record.fk_product_id = request.form['fk_product_id']
+        update_record.quantity_ordered = request.form['quantity_ordered']
+    
+    # else:
+    #     Products.query.filter_by(id=request.form['fk_product_id']).first().quantity_in_stock = int(Products.query.filter_by(id = int(request.form['fk_product_id'])).first().quantity_in_stock) + (int(update_record.quantity_ordered)-(int(update_record.quantity_ordered)-int(update_quantity_ordered)))
+    #     update_record.fk_product_id = request.form['fk_product_id']
+    #     db.session.commit()
+    #     update_record.quantity_ordered = request.form['quantity_ordered']
     return redirect(url_for('read_orders'))#render_template('customer_update.html',title='update_customer')
 
 @app.route('/orders/update/<int:order_record>',methods=['GET','POST'])
@@ -450,7 +462,7 @@ def delete_orders(order_):
     order_to_delete = Orders.query.filter_by(id=order_).first()
     #order_to_delete.quantity_in_stock = Products.query.filter_by(Orders.fk_product_id = order_to_delete.)
     order_fk_id = order_to_delete.fk_product_id
-    Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock) + 1  
+    Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock) + int(order_to_delete.quantity_ordered)  
     db.session.delete(order_to_delete)
     db.session.commit()
     return redirect(url_for('read_orders'))

@@ -88,13 +88,13 @@ class TestRoutes_create_read(TestBase):
         assert response.status_code == 200
         assert response.data != ''
     def test_add_order_submission(self):
-        self.client.post(url_for('add_orders'),data = dict(date='2021-03-10',price=0.3,cash_payment=0.3,prepaid_payment=0,fk_customer_id= 1,fk_product_id=1),follow_redirects=True)
+        self.client.post(url_for('add_orders'),data = dict(date='2021-03-10',price=0.3,cash_payment=0.3,prepaid_payment=0,quantity_ordered=2,fk_customer_id= 1,fk_product_id=1),follow_redirects=True)
         response = self.client.get(url_for('read_orders'))
         self.assertIn(b"Aero",response.data)
         
         response1 = self.client.get(url_for('read_products'))
         df = pd.read_html(response1.data, header=0)[0]
-        assert (df.loc[df.product_name == 'Aero'].quantity_in_stock).sum() == 9
+        assert (df.loc[df.product_name == 'Aero'].quantity_in_stock).sum() == 8
 
 class TestRoutes_update_read(TestBase):   
     ####### update + read customer
@@ -126,7 +126,7 @@ class TestRoutes_update_read(TestBase):
         assert len(df) > 0
     
     def test_orders_update_subimission(self):
-        self.client.post('/orders/update',data = dict(entry = 1, purchase_date='2021-03-14',price=0.4,cash_payment=0.4,prepaid_payment=0.0,fk_customer_id= 3, fk_product_id=3),follow_redirects=True)
+        self.client.post('/orders/update',data = dict(entry = 1, purchase_date='2021-03-14',price=0.4,cash_payment=0.4,prepaid_payment=0.0,quantity_ordered=1,fk_customer_id= 3, fk_product_id=3),follow_redirects=True)
         #self.client.post('/orders/update',follow_redirects=True)
         response = self.client.get(url_for('read_orders'))
         df2 = pd.read_html(response.data, header=0)[0]

@@ -26,7 +26,7 @@ customer_add2 = Customers(first_name="Jane",last_name = "Day",customer_address =
 db.session.add(customer_add2)
 customer_add3 = Customers(first_name="Jorge",last_name = "Rodriguez",customer_address = '84 Privet Drive',customer_dob='1988-08-15',prepaid_balance=0)
 db.session.add(customer_add3)
-order_add = Orders(purchase_date = '2021-03-07',price=0.3,cash_payment = 0.3,prepaid_payment = 0,fk_customer_id=1,fk_product_id=4)
+order_add = Orders(purchase_date = '2021-03-07',price=0.3,cash_payment = 0.3,prepaid_payment = 0,quantity_ordered=1,fk_customer_id=1,fk_product_id=4)
 db.session.add(order_add)
 #db.session.add(Customers(first_name="John",last_name = "Doe",customer_address = '1 The Mall, London',customer_dob='2020-07-05'))
 db.session.commit()
