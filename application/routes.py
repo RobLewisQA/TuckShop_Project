@@ -4,6 +4,7 @@ from application.models import Products,Orders,Customers #,SummaryOrder,OrdersSu
 #from app import BasicForm_customers#, SimpleForm_customers
 import sqlalchemy as sql
 import pandas as pd
+from datetime import datetime
 
 @app.route('/')
 def home():
@@ -305,13 +306,14 @@ def delete_products(product_):
 @app.route('/orders/add', methods = ['GET','POST'])
 def add_order():
     html = ""
+    date = datetime.today().strftime('%Y-%m-%d')
     if request.method == 'POST':
         connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
         sql_engine = sql.create_engine(connect_string)
         df = pd.read_sql_table('products', sql_engine)
         #df1 = df.loc[df.id==int(customer_record),:]
         html = df.to_html(escape=False)
-    return render_template('orderform.html',title='add_order') + '<br><br>' + html +('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+    return render_template('orderform.html',title='add_order', value = date) + '<br><br>' + html +('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 #return render_template('orderform.html',title='add_order') + '<br><br>' + html +('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 
 #@app.route('/orders/add/order')
