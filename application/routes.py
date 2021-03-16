@@ -103,9 +103,10 @@ def customer_update1(customer_record):
     df = pd.read_sql_table('customers', sql_engine)
     df1 = df.loc[df.id==int(customer_record),:]
     html = df1.to_html(escape=False)
+    record_no = customer_record
     #customer_update_code = pd.read_html('customer_update.html')
     
-    return ('<h1>Update Customers</h1><br>')+ html + "<br><br>" + render_template('customer_update.html') +('<br> <a href="/customers">Back to Customers</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')
+    return ('<h1>Update Customers</h1><br>')+ html + "<br><br>" + render_template('customer_update.html',value=record_no) +('<br> <a href="/customers">Back to Customers</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')
 
 
 
@@ -207,7 +208,7 @@ def add_product():
 #'/products/add/<name>-<brand>-<quantity>-<itemcost>-<price_>'
 def add_products():
     if request.method=='POST':
-        new_product_name = request.form['name']
+        new_product_name = request.form['product_name']
         new_product_brand = request.form['brand']
         new_product_quantity = request.form['quantity']
         new_product_itemcost = request.form['itemcost']
@@ -403,7 +404,7 @@ def orders_update_page():
     for n in range(len(df_join)):
         df_join.iloc[n,-1] = "<a href=/orders/delete/"+ str(df_join.loc[n,'id_x']) + ">delete</a>"
         df_join.iloc[n,-2] = "<a href=/orders/update/"+ str(df_join.loc[n,'id_x']) + ">update</a>"
-    html = df_join.to_html(render_links=True,escape=False)
+    html = df_join.to_html(render_links=True,escape=False,classes='table table-striped')
     return ('<h1>Update Orders</h1><br>')+html+('<br> <a href="/orders">Back to Orders</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+(' <a href="/customers">Navigate to Customers</a> </br>')
 
 @app.route('/orders/update', methods = ['GET','POST'])
@@ -448,10 +449,10 @@ def order_update1(order_record):
     df1 = pd.read_sql_table('customers', sql_engine)
     df2 = pd.read_sql_table('products', sql_engine)
     df_join = pd.merge(left=(pd.merge(df_row,df1,how='left',left_on='fk_customer_id',right_on='id')),right=df2,how='left',left_on='fk_product_id',right_on='id')[['id_x','purchase_date','price_x','cash_payment','prepaid_payment','price_x','fk_customer_id','fk_product_id','first_name','last_name','product_name','product_brand']]
-    
-    html = df_join.to_html(escape=False)
+    order_no = order_record
+    html = df_join.to_html(escape=False,classes='table table-striped')
     #customer_update_code = pd.read_html('customer_update.html')
-    return ('<h1>Update Orders</h1><br>')+html + "<br><br>" + render_template('orders_update.html')
+    return ('<h1>Update Orders</h1><br>')+html + "<br><br>" + render_template('orders_update.html', value1=order_no)
 
 ### delete order
 @app.route('/orders/delete/<int:order_>', methods = ['GET','POST'])
