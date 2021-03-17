@@ -55,49 +55,58 @@ class TestRoutes_general(TestBase):
 
 class TestRoutes_create_read(TestBase):
     ####### add + read customer
-    def test_add_customer(self):
+    
+    def test_add_customer(self):    # testing the customer addition form page
         response = self.client.get(url_for('add_customer'),follow_redirects=True)
         assert response.status_code == 200
         assert response.data != ''
-    def post_test_customer(self):
+    
+    def post_test_customer(self):   # testing the submission of a new customer
         self.client.post(url_for('add_customer'),data = dict(first_name='Charles',last_name='Tester',customer_address='10 Downing Street',customer_dob='1987-03-18',prepaid_balance= 0.00),follow_redirects=True)
         assert response.status_code == 200
-    def test_add_customer_submission(self):
+
+    def test_add_customer_submission(self):    # testing the customer list page after submission for new entry 
         self.client.post(url_for('add_customers'),data = dict(first_name='Charles',last_name='Tester',customer_address='10 Downing Street',customer_dob='1987-03-18',prepaid_balance= 0.00),follow_redirects=True)
         response = self.client.get(url_for('read_customers'))
         self.assertIn(b"Tester",response.data)    
 
     ####### add + read product
-    def test_add_product(self):
+    
+    def test_add_product(self):    # testing the product addition form page
         response = self.client.get(url_for('add_product'),follow_redirects=True)
         assert response.status_code == 200
         assert response.data != ''
-    def post_test_product(self):
+
+    def post_test_product(self):    # testing the submission of a new product
         self.client.post(url_for('add_product'),data = dict(product_name='Snickers',product_brand='Mars',quantity_in_stock=10,cost_per_item=0.4,price= 0.55),follow_redirects=True)
         assert response.status_code == 200
         response = self.client.get(url_for('read_products'))
         self.assertIn(b"Snickers",response.data)
-    def test_add_product_submission(self):
+
+    def test_add_product_submission(self):    # testing the product list page after submission for new entry 
         response = self.client.get(url_for('add_products'),follow_redirects=True)
         assert response.status_code == 200
         assert response.data != ''
 
     ####### add + read order
-    def test_add_orders_formapage(self):
+    def test_add_orders_formapage(self):    # testing the order addition form page 
         response = self.client.get(url_for('add_order'),follow_redirects=True)
         assert response.status_code == 200
         assert response.data != ''
-    def test_add_order_submission(self):
+
+    def test_add_order_submission(self):    # testing the submission of a new order and the order page after submission for new entry
         self.client.post(url_for('add_orders'),data = dict(date='2021-03-10',price=0.3,cash_payment=0.3,prepaid_payment=0,quantity_ordered=2,fk_customer_id= 1,fk_product_id=1),follow_redirects=True)
         response = self.client.get(url_for('read_orders'))
         self.assertIn(b"Aero",response.data)
         
+    def test_products_post_order(self):    # testing the product list page after order submission for change in stock quantity  
         response1 = self.client.get(url_for('read_products'))
         df = pd.read_html(response1.data, header=0)[0]
         assert (df.loc[df.product_name == 'Aero'].quantity_in_stock).sum() == 8
 
-class TestRoutes_update_read(TestBase):   
+
     ####### update + read customer
+class TestRoutes_update_read(TestBase):   
     def test_customer_update_submission(self):
         self.client.post('/customers/update/2',data = dict(id = 2, first_name='Joan',last_name='Day',customer_address='4 Forkmoor Terrace',customer_dob='1988-08-15',prepaid_balance= 0.00),follow_redirects=True)
         self.client.post('/customers/update',data = dict(entry = 2, first_name='Joan',last_name='Day',customer_address='4 Forkmoor Terrace',customer_dob='1988-08-15',prepaid_balance= 0.00),follow_redirects=True)
@@ -117,27 +126,48 @@ class TestRoutes_update_read(TestBase):
         assert response.status_code == 200
         assert response.data != ''
         self.assertIn(b"KitKat",response.data)
+    
     ####### update + read order
-    def test_orders_update_page(self):
+    def test_orders_update_page(self):    # testing order update form - incl. record table and prefilled values
         response = self.client.get(url_for('orders_update_page'),follow_redirects=True)
         assert response.status_code == 200
         assert response.data != ''
         df = pd.read_html(response.data, header=0)[0]
         assert len(df) > 0
     
-    def test_orders_update_subimission(self):
+    def test_orders_update_subimission(self):    # testing successful order update submission
         self.client.post('/orders/update',data = dict(entry = 1, purchase_date='2021-03-14',price=0.4,cash_payment=0.4,prepaid_payment=0.0,quantity_ordered=1,fk_customer_id= 3, fk_product_id=3),follow_redirects=True)
         #self.client.post('/orders/update',follow_redirects=True)
-        response = self.client.get(url_for('read_orders'))
+        
+        response = self.client.get(url_for('read_orders'))    # testing order listings page for successful order amendment
         df2 = pd.read_html(response.data, header=0)[0]
         assert response.status_code == 200
         assert response.data != ''
         self.assertIn(b"Jorge",response.data)
+        
+        
+        # testing product listings page for quantity in stock reflection of successful order update
+        # testing update order failure due to wrong product-price pair
+        # testing update order failure due to wrong total_due-price-quantity trio
+        # testing update order failure due to insufficient stock
+
+        # testing customer update form - incl. record table and prefilled values
+        # testing successful customer update submission
+        # testing customer listings page for successful order amendment
+        # testing order listings page for names reflection of successful customer record update
+        # testing update customer failure due to customer duplication error
+
+        # testing product update form - incl. record table and prefilled values
+        # testing successful product update submission
+        # testing product listings page for successful order amendment
+        # testing order listings page for names reflection of successful order update
+        # testing update product failure due to product duplication error
 
 class TestRoutes_delete_read(TestBase):    
     ####### delete + read customer
-    def test_customers_delete(self):   
+    def test_customers_delete(self):    # testing the deletion submission of a customer record
         self.client.post('/customers/delete/4',follow_redirects=True)
+        
         response = self.client.get(url_for('read_customers'),follow_redirects=True)
         df = pd.read_html(response.data, header=0)[0]
         assert response.status_code == 200
@@ -145,8 +175,9 @@ class TestRoutes_delete_read(TestBase):
         assert len(df.loc[df.id == 4]) == 0
 
     ####### delete + read product
-    def test_products_delete(self):
+    def test_products_delete(self):    # testing the deletion submission of a product record
         self.client.post('/products/delete/2',follow_redirects=True)
+        
         response = self.client.get(url_for('read_products'),follow_redirects=True)
         df = pd.read_html(response.data, header=0)[0]
         assert response.status_code == 200
@@ -154,8 +185,9 @@ class TestRoutes_delete_read(TestBase):
         assert len(df.loc[df.id == 2]) == 0
 
     ####### delete + read order
-    def test_orders_delete(self):   
+    def test_orders_delete(self):    # testing the deletion submission of an order record
         self.client.post('/orders/delete/2',follow_redirects=True)
+        
         response = self.client.get(url_for('read_orders'),follow_redirects=True)
         df = pd.read_html(response.data, header=0)[0]
         assert response.status_code == 200
