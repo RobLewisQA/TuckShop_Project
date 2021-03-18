@@ -459,7 +459,7 @@ def update_order():
                 db.session.commit()    
                 return redirect(url_for('read_orders'))
             else:
-                return str(request.form['price']) + str(type(request.form['price']))+ "   " + str(Products.query.filter_by(id=int(request.form['fk_product_id'])).first().price) + str(type(Products.query.filter_by(id=int(request.form['fk_product_id'])).first().price))
+                return "Something wasn't right there. Your latest changes have not been logged in the system"#str(request.form['price']) + str(type(request.form['price']))+ "   " + str(Products.query.filter_by(id=int(request.form['fk_product_id'])).first().price) + str(type(Products.query.filter_by(id=int(request.form['fk_product_id'])).first().price))
 
         elif update_record.fk_product_id == request.form['fk_product_id']:
             #Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = 500 #int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) + (int(update_record.quantity_ordered)-(int(update_record.quantity_ordered)-int(update_quantity_ordered)))
