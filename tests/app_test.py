@@ -3,6 +3,7 @@ from flask_testing import TestCase
 from application import db, app, models
 import sqlalchemy
 import pandas as pd
+from datetime import datetime
 
 
 # Create the base class
@@ -69,6 +70,10 @@ class TestRoutes_create_read(TestBase):
         self.client.post(url_for('add_customers'),data = dict(first_name='Charles',last_name='Tester',customer_address='10 Downing Street',customer_dob='1987-03-18',prepaid_balance= 0.00),follow_redirects=True)
         response = self.client.get(url_for('read_customers'))
         self.assertIn(b"Tester",response.data)    
+    
+    # def test_add_customer_fail(self):    # testing the rejection of duplicate addition 
+        response1 = self.client.post(url_for('add_customers'),data = dict(first_name='Charles',last_name='Tester',customer_address='10 Downing Street',customer_dob='1987-03-18',prepaid_balance= 0.00),follow_redirects=True)
+        self.assertIn(b"already exists",response1.data)
 
     ####### add + read product
 
@@ -100,7 +105,8 @@ class TestRoutes_create_read(TestBase):
     def test_add_orders_formapage(self):    # testing the order addition form page 
         response = self.client.get(url_for('add_order'),follow_redirects=True)
         assert response.status_code == 200
-        assert response.data != ''
+        date = datetime.today().strftime('%Y-%m-%d')
+        assert date in str(response.data)
 
     def test_add_order_submission(self):    # testing the submission of a new order and the order page after submission for new entry
         self.client.post(url_for('add_orders'),data = dict(date='2021-03-10',price=0.3,cash_payment=0.6,prepaid_payment=0,quantity_ordered=2,fk_customer_id= 1,fk_product_id=1),follow_redirects=True)
@@ -124,10 +130,12 @@ class TestRoutes_create_read(TestBase):
         assert int(df.loc[df.Product == 'Aero'][['Quantity in stock']].sum()) == 8
 
     def test_failed_order2_submission(self):    # testing the submission of an order with quantity-price-total mistake, and the order page after submission checking entry failed
-        self.client.post(url_for('add_orders'),data = dict(date='2021-03-10',price=0.4,cash_payment=0.4,prepaid_payment=0,quantity_ordered=1,fk_customer_id= 3,fk_product_id=1),follow_redirects=True)
+        response1 = self.client.post(url_for('add_orders'),data = dict(date='2021-03-10',price=0.4,cash_payment=0.4,prepaid_payment=0,quantity_ordered=1,fk_customer_id= 3,fk_product_id=1),follow_redirects=True)
+        self.assertIn(b"Oops",response1.data) 
         #assert response.status_code == 200
         response = self.client.get(url_for('read_orders'))
         self.assertNotIn(b"Rodriguez",response.data)
+        
         
         response1 = self.client.get(url_for('read_products'))    # testing product stock quantities to validate order failure
         df = pd.read_html(response1.data, header=0)[0]
@@ -174,6 +182,10 @@ class TestRoutes_update_read(TestBase):
         self.assertIn(b"0.5",response.data)
         self.assertIn(b"0.65",response.data)
     
+    def product_update_form_page(self):
+        response = self.client.get('/products/update/1',follow_redirects=True)
+        self.assertIn(b"Doe",response.data)
+    
     # def test_products_update_failure(self):    # testing the failure of form submission on empty fields
     #     response1 = self.client.post('/products/update/2',data = dict(entry = 2, product_name=None,product_brand="Terry's",quantity_in_stock=12,cost_per_item=0.5,price= 0.65),follow_redirects=True)
     #     response2 = self.client.post('/products/update/2',data = dict(entry = 2, product_name='Chocolate Orange',product_brand=None,quantity_in_stock=12,cost_per_item=0.5,price= 0.65),follow_redirects=True)
@@ -210,6 +222,16 @@ class TestRoutes_update_read(TestBase):
         assert response.status_code == 200
         assert response.data != ''
         self.assertIn(b"Jorge",response.data)
+
+    def test_update_order_sub2(self):
+        self.client.post('/orders/update',data = dict(entry = 2, purchase_date='2021-03-14',price=0.3,cash_payment=1.2,prepaid_payment=0.0,quantity_ordered=4,fk_customer_id= 3, fk_product_id=1),follow_redirects=True)
+        response = self.client.get(url_for('read_orders'))    # testing order listings page for successful order amendment
+        df = pd.read_html(response.data, header=0)[0]
+        self.assertIn(b"4",response.data)
+        response2 = self.client.get(url_for('read_products'))
+        df1 = pd.read_html(response2.data, header=0)[0]
+        df1.columns = df1.columns.str.replace(' ', '_',)
+        assert int(df1.loc[df1.Product == 'Aero'].Quantity_in_stock.sum()) == 6
 
     def test_orders_update_fail_1(self):    # testing update order failure due to wrong product-price pair
         response = self.client.post('/orders/update',data = dict(entry = 1, purchase_date='2021-03-14',price=0.4,cash_payment=0.4,prepaid_payment=0.0,quantity_ordered=1,fk_customer_id= 3, fk_product_id=1),follow_redirects=True)
@@ -262,8 +284,8 @@ class TestRoutes_delete_read(TestBase):
 
     ####### delete + read product
     def test_products_delete(self):    # testing the deletion submission of a product record
-        self.client.post('/products/delete/2',follow_redirects=True)
-        
+        response1 = self.client.post('/products/delete/2',follow_redirects=True)
+        assert response1.status_code == 200
         response = self.client.get(url_for('read_products'),follow_redirects=True)
         df = pd.read_html(response.data, header=0)[0]
         assert response.status_code == 200
@@ -271,6 +293,10 @@ class TestRoutes_delete_read(TestBase):
         df.columns = df.columns.str.replace(' ', '_',)
         assert len(df.loc[df.Product_ID == 2]) == 0
 
+    def test_products_delete_fail(self):    # testing the deletion submission of a product record
+        response = self.client.post('/products/delete/3',follow_redirects=True)
+        self.assertIn(b"Oops",response.data)
+        
     ####### delete + read order
     def test_orders_delete(self):    # testing the deletion of an order record - reading the order list and product list subsequently
         self.client.post('/orders/delete/2',follow_redirects=True)

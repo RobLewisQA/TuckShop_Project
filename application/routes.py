@@ -521,11 +521,11 @@ def delete_orders(order_):
 #     return html
 @app.route('/products/delete/<int:order>')
 def delete_orders1(order_):
-   Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock) - 1
-   db.session.commit()
-   new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,prepaid_payment=new_prepaid_payment,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)
-#   db.session.add(new_order)
-   db.session.commit()
+    Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock) - 1
+    db.session.commit()
+    new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,prepaid_payment=new_prepaid_payment,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)
+    #   db.session.add(new_order)
+    db.session.commit()
 
     #if Orders.query.filter_by(fk_product_id=product_).count() == 0:
     #    product_to_delete = Products.query.filter_by(id=product_).first()
