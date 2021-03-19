@@ -144,10 +144,18 @@ class TestRoutes_create_read(TestBase):
         self.assertNotIn(b"Rodriguez",response.data)
         
         
-        response1 = self.client.get(url_for('read_products'))    # testing product stock quantities to validate order failure
-        df = pd.read_html(response1.data, header=0)[0]
+        response2 = self.client.get(url_for('read_products'))    # testing product stock quantities to validate order failure
+        df = pd.read_html(response2.data, header=0)[0]
         assert int(df.loc[df.Product == 'Aero'][['Quantity in stock']].sum()) == 8
-
+    
+    def test_failed_order3_submission(self):    # testing the submission of an order with quantity-price-total mistake, and the order page after submission checking entry failed
+        response = self.client.post(url_for('add_orders'),data = dict(date='2021-03-10',price=0.3,cash_payment=8,prepaid_payment=0,quantity_ordered=20,fk_customer_id= 3,fk_product_id=1),follow_redirects=True)
+        self.assertIn(b"Sorry",response.data) 
+        #assert response.status_code == 200
+        response1 = self.client.get(url_for('read_products'))
+        df = pd.read_html(response1.data, header=0)[0]
+        df.columns = df.columns.str.replace(' ', '_',)
+        assert int(df.loc[df.Product == "Aero"].Quantity_in_stock.sum()) == 8
 
     ####### update + read customer
 class TestRoutes_update_read(TestBase):   
