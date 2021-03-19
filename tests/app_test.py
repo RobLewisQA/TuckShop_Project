@@ -79,16 +79,19 @@ class TestRoutes_create_read(TestBase):
 
 
     def test_add_product(self):    # testing the product addition form page
-        response = self.client.get(url_for('add_product'),follow_redirects=True)
-        assert response.status_code == 200
-        assert response.data != ''
+        response = self.client.get(url_for('add_product'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Product Name", response.data)
+        # assert response.status_code == 200
+        # assert response.data != ''
 
     def post_test_product(self):    # testing the submission of a new product
-        self.client.post(url_for('add_products'),data = dict(product_name='Snickers',product_brand='Mars',quantity_in_stock=10,cost_per_item=0.4,price= 0.55),follow_redirects=True)
+        response1 = self.client.post(url_for('add_products'),data = dict(product_name='Snickers',product_brand='Mars',quantity_in_stock=10,cost_per_item=0.4,price= 0.55),follow_redirects=True)
         assert response1.status_code == 200
+        #self.client.post(url_for('add_products'),data = dict(product_name='Snickers',product_brand='Mars',quantity_in_stock=10,cost_per_item=0.4,price= 0.55),follow_redirects=True)
         #self.client.post(url_for('add_product'),data = dict(product_name='Snickers',product_brand='Mars',quantity_in_stock=10,cost_per_item=0.4,price= 0.55),follow_redirects=True)
-        response = self.client.get(url_for('read_products'))
-        self.assertIn(b"Snickers",response.data)
+        #response = self.client.get(url_for('read_products'))
+        self.assertIn(b"Snickers",response1.data)
 
     def post_test_product(self):    # testing the submission of a new product
         self.client.post(url_for('add_products'),data = dict(product_name='Twirl',product_brand="Cadbury's",quantity_in_stock=10,cost_per_item=0.4,price= 0.55),follow_redirects=True)
@@ -96,7 +99,11 @@ class TestRoutes_create_read(TestBase):
         response = self.client.get(url_for('read_products'))
         self.assertIn(b"Oops",response.data)
 
-    #def test_add_product_submission(self):    # testing the product list page after submission for new entry 
+    def post_test_product_fail(self):    # testing the submission of a duplicate product for failure
+        response1 = self.client.post(url_for('add_products'),data = dict(product_name='Aero',product_brand='Nestle',quantity_in_stock=10,cost_per_item=0.4,price= 0.55),follow_redirects=True)
+        self.assertIn(b"Oops", response1.data)
+  
+  #def test_add_product_submission(self):    # testing the product list page after submission for new entry 
     #    response = self.client.get(url_for('add_products'),follow_redirects=True)
     #    assert response.status_code == 200
     #    assert response.data != ''
@@ -184,7 +191,7 @@ class TestRoutes_update_read(TestBase):
     
     def product_update_form_page(self):
         response = self.client.get('/products/update/1',follow_redirects=True)
-        self.assertIn(b"Doe",response.data)
+        self.assertIn(b"Aero",response.data)
     
     # def test_products_update_failure(self):    # testing the failure of form submission on empty fields
     #     response1 = self.client.post('/products/update/2',data = dict(entry = 2, product_name=None,product_brand="Terry's",quantity_in_stock=12,cost_per_item=0.5,price= 0.65),follow_redirects=True)
@@ -273,12 +280,16 @@ class TestRoutes_update_read(TestBase):
 class TestRoutes_delete_read(TestBase):    
     ####### delete + read customer
     def test_customers_delete(self):    # testing the deletion submission of a customer record
-        self.client.post('/customers/delete/4',follow_redirects=True)
-        
-        response = self.client.get(url_for('read_customers'),follow_redirects=True)
-        df = pd.read_html(response.data, header=0)[0]
-        assert response.status_code == 200
-        assert response.data != ''
+        response1 = self.client.get('/customers/delete/4',follow_redirects=True)
+        self.assertEqual(response1.status_code, 200)
+
+            #response = self.client.get(url_for('read_customers'),follow_redirects=True)
+            
+        df = pd.read_html(response1.data, header=0)[0]
+            
+            # assert response.status_code == 200
+            # assert response.data != ''
+            
         df.columns = df.columns.str.replace(' ', '_',)
         assert len(df.loc[df.Customer_ID == 4]) == 0
 

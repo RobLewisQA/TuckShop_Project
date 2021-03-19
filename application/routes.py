@@ -12,8 +12,6 @@ def home():
 ## create customers
 @app.route('/customers/add', methods=['GET','POST'])
 def add_customer():
-    if request.method == 'POST':
-        page = ''
     return render_template('customerform.html',title='add_customer')
 
 @app.route('/customers/add/customer',methods=['GET','POST'])
@@ -181,17 +179,17 @@ def update_customers():
 ##########################################################################
 
 ## delete customers
-@app.route('/customers/delete/<int:customer_>', methods = ['GET','POST'])
+@app.route('/customers/delete/<int:customer_>')#, methods = ['GET','POST'])
 def delete_customers(customer_):
-    if request.method=='POST':
-        page = ''
+    #  if request.method=='POST':
+    #      page = ''
     if Orders.query.filter_by(fk_customer_id=customer_).count() == 0:
         customer_to_delete = Customers.query.filter_by(id=customer_).first()
         db.session.delete(customer_to_delete)
         db.session.commit()
         return redirect(url_for('read_customers'))
     else: 
-        return "Oops! You tried to delete a product that has already been purchased" +('<br> <a href="/customers">Return to Customers?</a> </br>')
+        return "Oops! You tried to delete a customer that has already transacted" +('<br> <a href="/customers">Return to Customers?</a> </br>')
 
 # @app.route('/customers/delete', methods=['GET','POST'])
 # def customer_delete_page():
@@ -232,6 +230,7 @@ def add_products():
             return redirect(url_for('read_products'))
         else:
             return "Oops, it looks like this product already exists in your stock list"
+    #else: return "Oops, it looks like you didn't submit anything to add to the system"
 
 ## read products
 @app.route('/products')
@@ -342,27 +341,28 @@ def add_order():
 @app.route('/orders/add/order',methods=['GET','POST'])
 def add_orders():
     if request.method=='POST':
-        new_purchase_date = request.form['date']
-        new_product_price = request.form['price']
-        new_cash_payment = request.form['cash_payment']
-        new_prepaid_payment = request.form['prepaid_payment']
-        new_fk_customer_id = request.form['fk_customer_id']
-        new_fk_product_id = request.form['fk_product_id']
-        new_quantity_ordered = request.form['quantity_ordered']
-        if float(request.form['cash_payment']) == float(Products.query.filter_by(id = new_fk_product_id).first().price) * float(request.form['quantity_ordered']):
-            if float(new_product_price) == float(Products.query.filter_by(id = new_fk_product_id).first().price):
-                Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock) - int(new_quantity_ordered)
-                db.session.commit()
-                new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,prepaid_payment=new_prepaid_payment,quantity_ordered=new_quantity_ordered,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)
-                db.session.add(new_order)
-                db.session.commit()
-                return redirect(url_for('read_orders')) #f'{int(Products.query.filter_by(id = new_fk_product_id).first()).quantity_in_stock}'
+        if int(request.form['quantity_ordered']) <= int(Products.query.filter_by(id = int(request.form['fk_product_id'])).first().quantity_in_stock):
+            new_purchase_date = request.form['date']
+            new_product_price = request.form['price']
+            new_cash_payment = request.form['cash_payment']
+            new_prepaid_payment = request.form['prepaid_payment']
+            new_fk_customer_id = request.form['fk_customer_id']
+            new_fk_product_id = request.form['fk_product_id']
+            new_quantity_ordered = request.form['quantity_ordered']
+            if round(float(request.form['cash_payment']),2) == round(float(Products.query.filter_by(id = new_fk_product_id).first().price) * (float(request.form['quantity_ordered'])),2):
+                if round(float(new_product_price),2) == round(float(Products.query.filter_by(id = new_fk_product_id).first().price),2):
+                    Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock) - int(new_quantity_ordered)
+                    db.session.commit()
+                    new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,prepaid_payment=new_prepaid_payment,quantity_ordered=new_quantity_ordered,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)
+                    db.session.add(new_order)
+                    db.session.commit()
+                    return redirect(url_for('read_orders')) #f'{int(Products.query.filter_by(id = new_fk_product_id).first()).quantity_in_stock}'
+                else:
+                    return str(round(float(Products.query.filter_by(id = new_fk_product_id).first().price)),2)+ "Oops, that wasn't the right price"+('<br> <a href="/orders/add">Try again?</a> </br>')
             else:
-                return str(float(Products.query.filter_by(id = new_fk_product_id).first().price))+ "Oops, that wasn't the right price"+('<br> <a href="/orders/add">Try again?</a> </br>')
-        else:
-            return "Oops, that wasn't right. The total price should be " + str(float(Products.query.filter_by(id = new_fk_product_id).first().price) * float(request.form['quantity_ordered']))   
-            #str(Products.query.filter_by(id = new_fk_product_id).first().quantity_in_stock) + str(int(Products.query.filter_by(id = new_fk_product_id).first().quantity_in_stock) - 1) + "   oops, that didn't work"+('<br> <a href="/orders/add">Try again?</a> </br>')
-        #redirect(url_for('read_orders'))
+                return "Oops, that wasn't right. The total price should be " + str(round((float(Products.query.filter_by(id = new_fk_product_id).first().price)) * float(request.form['quantity_ordered'])),2)   
+        else: 
+            return "Sorry, that product is out of stock"
 
 ##### test add ####
 '''
