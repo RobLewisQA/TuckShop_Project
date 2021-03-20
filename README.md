@@ -38,6 +38,6 @@ In order to post this web application live to the internet, ignore step 4 above 
 ![chart](Tuckshop_ERD.PNG)
 
 ## References:
-> Pandas integreation with SQLAlchemy and HTML - Eric Brown, 2018 accessed at https://pythondata.com/quick-tip-sqlalchemy-for-mysql-and-pandas/
-> HTML form creation - https://www.w3schools.com/html/html_forms.asp
+##### Pandas integreation with SQLAlchemy and HTML - Eric Brown, 2018 accessed at https://pythondata.com/quick-tip-sqlalchemy-for-mysql-and-pandas/
+##### HTML form creation - https://www.w3schools.com/html/html_forms.asp
 
