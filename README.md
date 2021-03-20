@@ -24,9 +24,11 @@
 #### Gunicorn
 
 # Database Relationship Flowchart
+#### The Customers, Products and Orders tables are configured with the following relationship:
 
 # What does the user need to do to get it working
 
 # References:
 ## Pandas integreation with SQLAlchemy and HTML - Eric Brown, 2018 accessed at https://pythondata.com/quick-tip-sqlalchemy-for-mysql-and-pandas/
 ## HTML form creation - https://www.w3schools.com/html/html_forms.asp
+>>>>>>> 83baa878495e3106e532a1cee19f230e8033e964
