@@ -10,25 +10,22 @@
 
 ## Technologies
 ### Cloud Server Host:
-#### This web application was designed using the Google Cloud Platform as the host for both the compute virtual machine instance and MySQL database virtual machine instance. The GCP compute machine was developed on a Linux Ubuntu 18.04 bootdisk.
-### Database host format:
-#### The database is a MySQL relational database integrated with SQLalchemy for reading from and writing to the database using python commands. The python Pandas library is also used to read and clean data from the MySQL database for output to HTML.
+##### This web application was designed using the Google Cloud Platform as the host for both the compute virtual machine instance and MySQL database virtual machine instance. The GCP compute machine was developed on a Linux Ubuntu 18.04 bootdisk.
+### Database format:
+##### The database is a MySQL relational database integrated with SQLalchemy for reading from and writing to the database using python commands. The python Pandas library is also used to read and clean data from the MySQL database for output to HTML; the tables' HTML is generated using pandas methods for DataFrames.
 ### Frontend script:
-#### The application uses the Flask web-development framework to output python statements as HTML to the URI routes specified in the routes file.
-### Integration software:
+##### The application uses the Flask web-development framework to allow python statements to manage HTML output for the URI routes specified in the routes file. 
 ### Testing software:
-#### This application was tested using the flask-testing, pytest and pytest-cov python libraries. The unit and configuration testing thoughouly interrogates the read, create, update and delete functions, with coverage of 83% of the entire application.
+##### This application was tested using the flask-testing, pytest and pytest-cov python libraries. The unit and configuration testing thoughouly interrogates the read, create, update and delete functions, with coverage of 83% of the entire application.
 ### Deployment software:
-#### The application is designed and tested to be deployed using Jenkins for automated Linux commanding of virtual environment generation, dependencies installation and Gunicorn web-deployment. Continuous Integration and Continuous Delivery are 
-#### Jenkins
-#### Gunicorn
+##### The application is designed and tested to be deployed using Jenkins for automated Linux commanding of virtual environment generation, dependencies installation and Gunicorn web-deployment. Continuous Integration and Continuous Delivery are 
+### Continous Integration and Version Control:
+##### The source code for this application is maintained in a Github repository accessible [here](https://github.com/RobLewisQA/TuckShop_Project), and can be conncted to Jenkins for automatic continuous integration and deployment.
 
 # Database Relationship Flowchart
-#### The Customers, Products and Orders tables are configured with the following relationship:
-
-My favourite food:  
 ![chart](Tuckshop_ERD.PNG)
 
+#### The Customers, Products and Orders tables are configured with the following relationship:
 
 # Prerequisites:
 ###
