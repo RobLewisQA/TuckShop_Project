@@ -1,6 +1,6 @@
 # Tuckshop 
 ## Application Overview
-> Tuckshop is a web application for use by a tuckshop vendor for recording product sales. It is designed for a youth camp, where a customer list, as well as the stock list, are known. All tables accomodate the addition, updating and deletion of records - it is assumed that the tuckshop vendor will be the only user, so there is no restricted functionality.
+> Tuckshop is a web application for use by a tuck shop vendor for recording product sales. It is designed for a youth camp, where a customer list, as well as the stock list, are known. All tables accomodate the addition, updating and deletion of records - it is assumed that the tuck shop vendor will be the only user, so there is no restricted functionality.
 
 > This database system logs basic information on customers (names, address, date of birth, etc), products (name, brand, price, etc), and orders (date, price, quantity, etc). The product ID and customer ID in the orders form are used to identify a unique customer and product for each order, allowing the three tables to be robustly connected. All of the tables in the databse allow for the creation, deletion and amending of records, and there are in-built logical restrictions on any changes that would compromise the integrity of the data.
 
