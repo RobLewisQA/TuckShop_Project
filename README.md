@@ -27,7 +27,7 @@
 #### The Customers, Products and Orders tables are configured with the following relationship:
 
 My favourite food:  
-![chart](./TuckShop/Tuckshop ERD.PNG)
+![chart](Tuckshop_ERD.PNG)
 
 
 # Prerequisites:
