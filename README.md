@@ -26,7 +26,12 @@
 # Database Relationship Flowchart
 #### The Customers, Products and Orders tables are configured with the following relationship:
 
-# What does the user need to do to get it working
+My favourite food:  
+![chart](/Tuckshop ERD.PNG)
+
+
+# Prerequisites:
+###
 
 # References:
 ## Pandas integreation with SQLAlchemy and HTML - Eric Brown, 2018 accessed at https://pythondata.com/quick-tip-sqlalchemy-for-mysql-and-pandas/
