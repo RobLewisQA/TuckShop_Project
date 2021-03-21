@@ -172,6 +172,8 @@ def products_update_page():
     for n in range(len(df1)):
         df1.iloc[n,-1] = "<a href=/products/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
         df1.iloc[n,-2] = "<a href=/products/update/"+ str(df1.loc[n,'id']) + ">update</a>"
+    df1.price = ('£' + df1.price.astype('str')).str.ljust(5,'0')
+    df1.cost_per_item = ('£' + df1.cost_per_item.astype('str')).str.ljust(5,'0')
     df1.rename(columns={'id':'Product ID','product_name':'Product','product_brand':'Brand','quantity_in_stock':'Quantity in stock','cost_per_item':'Individual Cost','price':'Price'},inplace=True)
     html = df1.to_html(render_links=True,escape=False)
     return ('<h1>Update Product List</h1><br>')+ html +('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/products" type="button">Return to Products home</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>')
@@ -303,6 +305,7 @@ def orders_update_page():
     for n in range(len(df_join)):
         df_join.iloc[n,-1] = "<a href=/orders/delete/"+ str(df_join.loc[n,'id_x']) + ">delete</a>"
         df_join.iloc[n,-2] = "<a href=/orders/update/"+ str(df_join.loc[n,'id_x']) + ">update</a>"
+    df_join.price_x = ('£' + df_join.price_x.astype('str')).str.ljust(5,'0')
     df_join.rename(columns={'purchase_date':'Date','first_name':'First Name','last_name':'Surname','product_name':'Product','product_brand':'Brand','price_x':'Price','quantity_ordered':'Quantity','id_x':'Order ID'},inplace=True)
     html = df_join.to_html(render_links=True,escape=False,classes='table table-striped')
     return ('<h1>Update Orders</h1><br>')+html+('<br> <a href="/orders">Back to Orders</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+(' <a href="/customers">Navigate to Customers</a> </br>')
