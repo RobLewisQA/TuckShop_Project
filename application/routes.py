@@ -11,7 +11,10 @@ def home():
 ## create customers
 @app.route('/customers/add', methods=['GET','POST'])
 def add_customer():
-    return '<h1>Add New Customer</h1><br>' + render_template('customerform.html',title='add_customer')
+    return ('<h1>Add New Customer</h1><br>' + render_template('customerform.html',title='add_customer')
+            +('<br><br> <a href="/customers" type="button">Return to Customers home</a> </br>')
+            + ('<br> <a href="/customers/update2" type="button">Update customer records</a> </br>')
+            + ('<br> <a href="/" type="button">Return to home</a> </br>'))
 
 @app.route('/customers/add/customer',methods=['GET','POST'])
 def add_customers():
@@ -30,7 +33,8 @@ def add_customers():
             db.session.commit()
             return redirect(url_for('read_customers'))
         else:
-            return "It looks like this customer already exists"
+            return ("<h4><br>"+"It looks like " + str(request.form['first_name']) + " " + str(request.form['last_name'])+ " already exists in the system." + "</h4>" + '<a href="/customers/add" type="button">Try again?</a> </br>'
+                    + ('<br><br> <a href="/customers/update2" type="button">Update customer records</a> </br>')+('<br> <a href="/customers" type="button">Return to Customers home</a> </br>'))
 
 ###################
 
@@ -116,7 +120,7 @@ def delete_customers(customer_):
 def add_product():
     if request.method == 'POST':
         page = ''
-    return '<h1>Add New Product</h1><br>'+ render_template('stockform.html',title='add_item')
+    return '<h1>Add New Product</h1><br>'+ render_template('stockform.html',title='add_item')+('<br><br> <a href="/products" type="button">Return to Products home</a> </br>')+ ('<br> <a href="/products/update2" type="button">Update product records</a> </br>')
 
 @app.route('/products/add/item',methods=['GET','POST'])
 def add_products():
@@ -135,7 +139,9 @@ def add_products():
             db.session.commit()
             return redirect(url_for('read_products'))
         else:
-            return "Oops, it looks like this product already exists in your stock list"
+            return ("<h4><br>"+"It looks like " + str(request.form['brand']) + " " + str(request.form['product_name'])+ " already exists in the system." + "</h4>" + '<a href="/products/add" type="button">Try again?</a> </br>'
+                    + ('<br><br> <a href="/products/update2" type="button">Update products records</a> </br>')+('<br> <a href="/products" type="button">Return to Products home</a> </br>'))
+            #"Oops, it looks like this product already exists in your stock list"
     #else: return "Oops, it looks like you didn't submit anything to add to the system"
 
 ## read products
@@ -152,7 +158,7 @@ def read_products():
     html = df.to_html()
     #items = Products.query.all()
     #table = ItemTable(items)
-    return ('<h1>Products</h1><br>')+html+('<br> <a href="/products/add">Add new item to stocklist</a> </br>')+('<br> <a href="/products/update2">Edit stocklist</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+    return ('<h1>Products</h1><br>')+html+('<br> <a href="/products/add">Add new item to stocklist</a> </br>')+('<br> <a href="/products/update2">Edit stocklist</a> </br><br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 
 ## update products
 @app.route('/products/update2')
@@ -181,7 +187,7 @@ def update_product():
         update_record.cost_per_item = request.form['cost_per_item']
         db.session.commit()
         
-    return redirect(url_for('read_products'))#render_template('customer_update.html',title='update_customer')
+    return redirect(url_for('products_update_page'))#render_template('customer_update.html',title='update_customer')
 
 @app.route('/products/update/<int:product_record>',methods=['GET','POST'])
 def product_update1(product_record):
