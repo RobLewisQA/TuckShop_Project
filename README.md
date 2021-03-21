@@ -45,6 +45,9 @@ Application's virtual MySQL machine goes down | Application becomes unusable | L
 The Python language is updated to a new version | The application may not run if Flask and SQLAlchemy are not updated for compatibility | Medium | Medium | Developers | Run the application on Python 3 and phase in an updated version in CI | Keep a robust Github repo so that the source code can be continuously improved and use Jenkins to manage the integration and deployment
 Versions of libraries are updated and compatability issues are not mitigated | Some aspects of the application may fail | Medium | High | Developers | Update the requirements.txt to specify the exact versions required | Keep track of planned updates to key libraries, and specify the versions of some of the key libraries required for function
 
+## Development workflow:
+>To see a kanban Trello board of the development process workflow, click [here](https://trello.com/b/p2nBtOlV/tuck-shop-board)
+
 ## References:
 ##### Pandas integreation with SQLAlchemy and HTML - Eric Brown, 2018 accessed at https://pythondata.com/quick-tip-sqlalchemy-for-mysql-and-pandas/
 ##### HTML form creation - https://www.w3schools.com/html/html_forms.asp
