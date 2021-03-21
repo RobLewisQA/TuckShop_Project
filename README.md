@@ -10,10 +10,11 @@
 
 ## Setup
 > The source code for the Tuckshop web application can be cloned from [this Github repository](https://github.com/RobLewisQA/TuckShop_Project). In order to run the application on Linux Ubuntu 18.04 on your localhost port, ensure that you have Python 3.6 or higher installed, as well as the python installer package, pip3. The following commands should be input in order into your Linux terminal:
-1. source venv/bin/activate
-2. pip3 install -r requirements.txt
-3. python3 create.py
-4. python3 app.py
+1. python3 -m venv venv
+2. source venv/bin/activate
+3. pip3 install -r requirements.txt
+4. python3 create.py
+5. python3 app.py
 
 >In order to post this web application live to the internet, ignore step 4 above and instead use the following commands:
 4. pip3 install flask gunicorn
