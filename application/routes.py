@@ -148,7 +148,7 @@ def read_products():
     df.cost_per_item = ('£'+df.cost_per_item.astype('str')).str.ljust(5,'0')
     df.rename(columns={'id':'Product ID','product_name':'Product','product_brand':'Brand','quantity_in_stock':'Quantity in stock','cost_per_item':'Individual Cost','price':'Price'},inplace=True)
     html = df.to_html()
-    return ('<h1>Products</h1><br>')+html+('<br> <a href="/products/add">Add new item to stocklist</a> </br>')+('<br> <a href="/products/update2">Edit stocklist (update/delete)</a> </br><br>')+('<br><br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>') +('<br><br> <a href="/" type="button">Return to Home</a> </br>')
+    return ('<h1>Products</h1><br>')+html+('<br> <a href="/products/add">Add new item to stocklist</a> </br>')+('<br> <a href="/products/update2">Edit stocklist (Update/Delete)</a> </br><br>')+('<br><br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>') +('<br><br> <a href="/" type="button">Return to Home</a> </br>')
 
 
 # update products
@@ -168,7 +168,7 @@ def products_update_page():
     df1.cost_per_item = ('£' + df1.cost_per_item.astype('str')).str.ljust(5,'0')
     df1.rename(columns={'id':'Product ID','product_name':'Product','product_brand':'Brand','quantity_in_stock':'Quantity in stock','cost_per_item':'Individual Cost','price':'Price'},inplace=True)
     html = df1.to_html(render_links=True,escape=False)
-    return ('<h1>Update Product List</h1><br>')+ html +('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/products" type="button">Return to Products home</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>')
+    return ('<h1>Update Product List</h1><br>')+ html +('<br> <a href="/products">Back to Products home</a> </br>')+('<br> <br><a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>')
 
 @app.route('/products/update', methods = ['GET','POST'])
 def update_product():
@@ -188,6 +188,7 @@ def product_update1(product_record):
     sql_engine = sql.create_engine(connect_string)
     df = pd.read_sql_table('products', sql_engine)
     df1 = df.loc[df.id==int(product_record),:]
+    df1.rename(columns={'id':'Product ID','product_name':'Product','product_brand':'Brand','quantity_in_stock':'Quantity in stock','cost_per_item':'Individual Cost','price':'Price'},inplace=True)
     html = df1.to_html(escape=False)
     record_no = product_record
     return ('<h1>Update Products List</h1><br>')+html + "<br><br>" + render_template('product_update.html', value1 = record_no) + ('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/products" type="button">Return to Products home</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>')
