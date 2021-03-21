@@ -51,7 +51,7 @@ def read_customers():
     #df.drop(columns='prepaid_balance',inplace=True)
     html = df.to_html()
 
-    return ('<h1>Customers</h1><br>')+html+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/customers/update2" type="button">Update customer records</a> </br>')+('<br><br> <a href="/products">Navigate to Products</a><br>')+('<a href="/orders">Navigate to Orders</a>')
+    return ('<h1>Customers</h1><br>')+html+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/customers/update2" type="button">Update customer records</a> </br>')+('<br><br><br> <a href="/products">Navigate to Products</a><br><br>')+('<a href="/orders">Navigate to Orders</a>')+('<br><br> <a href="/" type="button">Return to Home</a> </br>')
     #('<h1>Customers</h1><br>')+table.__html__()+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')
 
 
@@ -140,7 +140,7 @@ def add_products():
             return redirect(url_for('read_products'))
         else:
             return ("<h4><br>"+"It looks like " + str(request.form['brand']) + " " + str(request.form['product_name'])+ " already exists in the system." + "</h4>" + '<a href="/products/add" type="button">Try again?</a> </br>'
-                    + ('<br><br> <a href="/products/update2" type="button">Update products records</a> </br>')+('<br> <a href="/products" type="button">Return to Products home</a> </br>'))
+                    + ('<br><br> <a href="/products/update2" type="button">Update products records</a> </br>')+('<br> <a href="/products" type="button">Return to Products home</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>'))
             #"Oops, it looks like this product already exists in your stock list"
     #else: return "Oops, it looks like you didn't submit anything to add to the system"
 
@@ -158,7 +158,7 @@ def read_products():
     html = df.to_html()
     #items = Products.query.all()
     #table = ItemTable(items)
-    return ('<h1>Products</h1><br>')+html+('<br> <a href="/products/add">Add new item to stocklist</a> </br>')+('<br> <a href="/products/update2">Edit stocklist</a> </br><br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+    return ('<h1>Products</h1><br>')+html+('<br> <a href="/products/add">Add new item to stocklist</a> </br>')+('<br> <a href="/products/update2">Edit stocklist</a> </br><br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>') +('<br> <a href="/" type="button">Return to Home</a> </br>')
 
 ## update products
 @app.route('/products/update2')
@@ -174,7 +174,7 @@ def products_update_page():
         df1.iloc[n,-2] = "<a href=/products/update/"+ str(df1.loc[n,'id']) + ">update</a>"
     df1.rename(columns={'id':'Product ID','product_name':'Product','product_brand':'Brand','quantity_in_stock':'Quantity in stock','cost_per_item':'Individual Cost','price':'Price'},inplace=True)
     html = df1.to_html(render_links=True,escape=False)
-    return ('<h1>Update Product List</h1><br>')+ html +('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')
+    return ('<h1>Update Product List</h1><br>')+ html +('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/products" type="button">Return to Products home</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>')
 
 @app.route('/products/update', methods = ['GET','POST'])
 def update_product():
@@ -198,7 +198,7 @@ def product_update1(product_record):
     html = df1.to_html(escape=False)
     record_no = product_record
     #customer_update_code = pd.read_html('customer_update.html')
-    return ('<h1>Update Products List</h1><br>')+html + "<br><br>" + render_template('product_update.html', value1 = record_no) + ('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')
+    return ('<h1>Update Products List</h1><br>')+html + "<br><br>" + render_template('product_update.html', value1 = record_no) + ('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/products" type="button">Return to Products home</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>')
 
 ## delete products
 @app.route('/products/delete/<int:product_>',methods=['GET','POST'])
@@ -208,7 +208,7 @@ def delete_products(product_):
         db.session.delete(product_to_delete)
         db.session.commit()
         return redirect(url_for('read_products'))
-    else: return "Oops! You tried to delete a product that has already been purchased" +('<br> <a href="/products">Return to Products?</a> </br>')
+    else: return "Oops! You tried to delete a product that has already been purchased"+('<br> <br><a href="/products/update2">Try Again?</a> </br>')+('<br> <br><br><a href="/products">Return to Products</a> </br>') +('<br> <a href="/products" type="button">Return to Products home</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>')
 
 
 ## create orders
@@ -261,9 +261,17 @@ def add_orders():
                 else:
                     return str(round(float(Products.query.filter_by(id = new_fk_product_id).first().price),2))+ "Oops, that wasn't the right price"+('<br> <a href="/orders/add">Try again?</a> </br>')
             else:
-                return "Oops, that wasn't right. The total price should be " + str(round((float(Products.query.filter_by(id = new_fk_product_id).first().price)) * float(request.form['quantity_ordered']),2))   
+                return ("<h3><br>Oops, that wasn't right. The total price should be " + "£"+str(round((float(Products.query.filter_by(id = new_fk_product_id).first().price)) * float(request.form['quantity_ordered']),2)).ljust(4,'0') +"</h3>"+
+                            ('<br> <a href="/orders/add">Try Again?</a> </br>') +
+                            ('<br> <a href="/orders/update2">Update Orders table</a> </br>') +
+                            ('<br> <br><a href="/orders">Return to Orders home</a> </br>')+
+                            ('<br> <a href="/">Return to Home</a> </br>'))
         else: 
-            return "Sorry, that product is out of stock"
+            return ("<h3><br>Sorry, there isn't enough of that product in stock</h3>" +
+                        ('<br> <a href="/orders/add">Try Again?</a> </br>') +
+                        ('<br> <a href="/orders/update2">Update Orders table</a> </br>') +
+                        ('<br> <br><a href="/orders">Return to Orders home</a> </br>')+
+                        ('<br> <a href="/">Return to Home</a> </br>'))
 
 ###################
 ### read orders
@@ -278,7 +286,7 @@ def read_orders():
     df_join.price_x = ('£'+df_join.price_x.astype('str')).str.ljust(5,'0')
     df_join.rename(columns={'purchase_date':'Date','first_name':'First Name','last_name':'Surname','product_name':'Product','product_brand':'Brand','price_x':'Price','quantity_ordered':'Quantity','id_x':'Order ID'},inplace=True)
     html = df_join.to_html()
-    return ('<h1>Orders</h1><br>')+ html + ('<br><a href="/orders/add">Add new order</a> </br>')+('<a href="/orders/update2">Edit an order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+(' <a href="/customers">Navigate to Customers</a> </br>')
+    return ('<h1>Orders</h1><br>')+ html + ('<br><a href="/orders/add">Add new order</a> </br>')+('<a href="/orders/update2">Edit an order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+(' <a href="/customers">Navigate to Customers</a> </br>')+('<br> <br><a href="/">Return to Home</a> </br>')
 
 ### update order
 
