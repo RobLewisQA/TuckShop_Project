@@ -37,6 +37,13 @@
 > The database for Tuckshop is composed of 3 tables: Customers, Products and Orders. Each entry/row for each table has a unique ID value that are primary keys in their own tables. The individual orders are connected to specific customers and products by foreign key relationships, denoted in the Orders table as fk_customer_id and fk_product_id. Colloquially, the tables are related such that a single order is made by a single customer for a single product item (order quantities may vary). One customer can make many orders and one product can be included in many orders. A visualisation of this information is show below:
 ![chart](Tuckshop_ERD.PNG)
 
+## Risk Assessment
+Description | Evaluation | Likelihood | Impact Level | Responsibility | Control Mearues
+| --- | --- | --- | --- | --- | --- |
+1. Application's virtual compute machine goes down | Application goes offline | Low | High | GCP | Spin up a new vm instance either in GCP or an alternative cloud provider and clone the Github repo to integrate with Jenkins| keep up-to-date source code on Github
+| --- | --- | --- | --- | --- | --- |
+2.Application's virtual MySQL machine goes down | Low | High | 
+
 ## References:
 ##### Pandas integreation with SQLAlchemy and HTML - Eric Brown, 2018 accessed at https://pythondata.com/quick-tip-sqlalchemy-for-mysql-and-pandas/
 ##### HTML form creation - https://www.w3schools.com/html/html_forms.asp
