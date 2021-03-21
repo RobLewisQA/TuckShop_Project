@@ -39,8 +39,10 @@
 
 ## Risk Assessment
 Description | Evaluation | Likelihood | Impact Level | Responsibility | Control Mearues
-1. Application's virtual compute machine goes down | Application goes offline | Low | High | GCP | Spin up a new vm instance either in GCP or an alternative cloud provider and clone the Github repo to integrate with Jenkins| keep up-to-date source code on Github
-2. Application's virtual MySQL machine goes down | Low | High | 
+| --- | --- | --- | --- | --- | --- |
+Application's virtual compute machine goes down | Application goes offline | Low | High | GCP | Spin up a new vm instance either in GCP or an alternative cloud provider and clone the Github repo to integrate with Jenkins| keep up-to-date source code on Github
+| --- | --- | --- | --- | --- | --- |
+Application's virtual MySQL machine goes down | Low | High | 
 
 ## References:
 ##### Pandas integreation with SQLAlchemy and HTML - Eric Brown, 2018 accessed at https://pythondata.com/quick-tip-sqlalchemy-for-mysql-and-pandas/
