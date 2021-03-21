@@ -219,17 +219,18 @@ def add_order():
     sql_engine = sql.create_engine(connect_string)
     df = pd.read_sql_table('products', sql_engine)
     df.price = ('£' + df.price.astype('str')).str.ljust(5,'0')
+    df.rename(columns={'id':'Product ID'})
     df2 = pd.read_sql_table('customers', sql_engine,parse_dates='customer_dob')
     df['_______________________'] = ''
     df_join = pd.concat([df,df2],axis=1).fillna('.')
     #df_join.customer_dob = (df_join.customer_dob.astype('str')).str.split(' ')[0]
-    
-    df_join['Age'] = df_join.customer_dob#.str.split(' ')[0]#(datetime.today() - df_join.customer_dob.str.split(' ')[0]).astype('str')
-    #df_join.Age = (df_join.Age.str.split(' ',expand=True)[0].astype('int')/365).astype('int')
-    
+    date = datetime.today().strftime('%Y-%m-%d')
+    df_join['Age'] = int(int((datetime.today() - df_join.customer_dob).astype('str').str.split(' ').str[0])/365)
     df_join.drop(columns=['cost_per_item','customer_dob','customer_address'],inplace=True)
     html = df_join.to_html(escape=False)  
-    date = datetime.today().strftime('%Y-%m-%d')
+    
+    df_join.rename(columns={'id':'Customer ID','product_name':'Product','product_brand':'Brand','quantity_in_stock':'Quantity in stock','first_name':'First Name','last_name':'Last Name'},inplace=True)
+
     if request.method == 'POST':
         #connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
         #sql_engine = sql.create_engine(connect_string)
