@@ -227,10 +227,9 @@ def add_order():
     date = datetime.today().strftime('%Y-%m-%d')
     df_join['Age'] = int(int((datetime.today() - df_join.customer_dob).astype('str').str.split(' ').str[0])/365)
     df_join.drop(columns=['cost_per_item','customer_dob','customer_address'],inplace=True)
-    html = df_join.to_html(escape=False)  
     
-    df_join.rename(columns={'id':'Customer ID','product_name':'Product','product_brand':'Brand','quantity_in_stock':'Quantity in stock','first_name':'First Name','last_name':'Last Name'},inplace=True)
-
+    df_join.rename(columns={'id':'Customer ID','product_name':'Product','price':'Price','product_brand':'Brand','quantity_in_stock':'Quantity in stock','first_name':'First Name','last_name':'Last Name'},inplace=True)
+    html = df_join.to_html(escape=False)  
     if request.method == 'POST':
         #connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
         #sql_engine = sql.create_engine(connect_string)
