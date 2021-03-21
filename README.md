@@ -15,7 +15,7 @@
 3. python3 create.py
 4. python3 app.py
 
-In order to post this web application live to the internet, ignore step 4 above and instead use the following commands:
+>In order to post this web application live to the internet, ignore step 4 above and instead use the following commands:
 4. pip3 install flask gunicorn
 5. sudo apt install gunicorn3 -y
 6. gunicorn3 --bind=0.0.0.0:[*INSERT YOUR PORT NUMBER*] app:app
