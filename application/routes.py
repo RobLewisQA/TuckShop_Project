@@ -227,7 +227,8 @@ def add_order():
     df_join = pd.concat([df,df2],axis=1).fillna('.')
     #df_join.customer_dob = (df_join.customer_dob.astype('str')).str.split(' ')[0]
     date = datetime.today().strftime('%Y-%m-%d')
-    df_join['Age'] = int(int((datetime.today() - df_join.customer_dob).astype('str').str.split(' ').str[0])/365)
+    df_join['Age'] = (datetime.today() - df_join.customer_dob).astype('str').str.split(' ').str[0]
+    df_join.Age = df_join.Age.astype('int')/365
     df_join.drop(columns=['cost_per_item','customer_dob','customer_address'],inplace=True)
     
     df_join.rename(columns={'id':'Customer ID','product_name':'Product','price':'Price','product_brand':'Brand','quantity_in_stock':'Quantity in stock','first_name':'First Name','last_name':'Last Name'},inplace=True)
