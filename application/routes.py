@@ -11,7 +11,10 @@ def home():
 ## create customers
 @app.route('/customers/add', methods=['GET','POST'])
 def add_customer():
-    return '<h1>Add New Customer</h1><br>' + render_template('customerform.html',title='add_customer')
+    return ('<h1>Add New Customer</h1><br>' + render_template('customerform.html',title='add_customer')
+            +('<br><br> <a href="/customers" type="button">Return to Customers home</a> </br>')
+            + ('<br> <a href="/customers/update2" type="button">Update customer records</a> </br>')
+            + ('<br> <a href="/" type="button">Return to home</a> </br>'))
 
 @app.route('/customers/add/customer',methods=['GET','POST'])
 def add_customers():
@@ -30,7 +33,8 @@ def add_customers():
             db.session.commit()
             return redirect(url_for('read_customers'))
         else:
-            return "It looks like this customer already exists"
+            return ("<h4><br>"+"It looks like " + str(request.form['first_name']) + " " + str(request.form['last_name'])+ " already exists in the system." + "</h4>" + '<a href="/customers/add" type="button">Try again?</a> </br>'
+                    + ('<br><br> <a href="/customers/update2" type="button">Update customer records</a> </br>')+('<br> <a href="/customers" type="button">Return to Customers home</a> </br>'))
 
 ###################
 
@@ -47,7 +51,7 @@ def read_customers():
     #df.drop(columns='prepaid_balance',inplace=True)
     html = df.to_html()
 
-    return ('<h1>Customers</h1><br>')+html+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/customers/update2" type="button">Update customer records</a> </br>')+('<br><br> <a href="/products">Navigate to Products</a><br>')+('<a href="/orders">Navigate to Orders</a>')
+    return ('<h1>Customers</h1><br>')+html+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/customers/update2" type="button">Update customer records</a> </br>')+('<br><br><br> <a href="/products">Navigate to Products</a><br><br>')+('<a href="/orders">Navigate to Orders</a>')+('<br><br> <a href="/" type="button">Return to Home</a> </br>')
     #('<h1>Customers</h1><br>')+table.__html__()+('<br> <a href="/customers/add" type="button">Add new customer</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')
 
 
@@ -116,7 +120,7 @@ def delete_customers(customer_):
 def add_product():
     if request.method == 'POST':
         page = ''
-    return '<h1>Add New Product</h1><br>'+ render_template('stockform.html',title='add_item')
+    return '<h1>Add New Product</h1><br>'+ render_template('stockform.html',title='add_item')+('<br><br> <a href="/products" type="button">Return to Products home</a> </br>')+ ('<br> <a href="/products/update2" type="button">Update product records</a> </br>')
 
 @app.route('/products/add/item',methods=['GET','POST'])
 def add_products():
@@ -135,7 +139,9 @@ def add_products():
             db.session.commit()
             return redirect(url_for('read_products'))
         else:
-            return "Oops, it looks like this product already exists in your stock list"
+            return ("<h4><br>"+"It looks like " + str(request.form['brand']) + " " + str(request.form['product_name'])+ " already exists in the system." + "</h4>" + '<a href="/products/add" type="button">Try again?</a> </br>'
+                    + ('<br><br> <a href="/products/update2" type="button">Update products records</a> </br>')+('<br> <a href="/products" type="button">Return to Products home</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>'))
+            #"Oops, it looks like this product already exists in your stock list"
     #else: return "Oops, it looks like you didn't submit anything to add to the system"
 
 ## read products
@@ -152,7 +158,7 @@ def read_products():
     html = df.to_html()
     #items = Products.query.all()
     #table = ItemTable(items)
-    return ('<h1>Products</h1><br>')+html+('<br> <a href="/products/add">Add new item to stocklist</a> </br>')+('<br> <a href="/products/update2">Edit stocklist</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
+    return ('<h1>Products</h1><br>')+html+('<br> <a href="/products/add">Add new item to stocklist</a> </br>')+('<br> <a href="/products/update2">Edit stocklist</a> </br><br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>') +('<br> <a href="/" type="button">Return to Home</a> </br>')
 
 ## update products
 @app.route('/products/update2')
@@ -166,9 +172,11 @@ def products_update_page():
     for n in range(len(df1)):
         df1.iloc[n,-1] = "<a href=/products/delete/"+ str(df1.loc[n,'id']) + ">delete</a>"
         df1.iloc[n,-2] = "<a href=/products/update/"+ str(df1.loc[n,'id']) + ">update</a>"
+    df1.price = ('£' + df1.price.astype('str')).str.ljust(5,'0')
+    df1.cost_per_item = ('£' + df1.cost_per_item.astype('str')).str.ljust(5,'0')
     df1.rename(columns={'id':'Product ID','product_name':'Product','product_brand':'Brand','quantity_in_stock':'Quantity in stock','cost_per_item':'Individual Cost','price':'Price'},inplace=True)
     html = df1.to_html(render_links=True,escape=False)
-    return ('<h1>Update Product List</h1><br>')+ html +('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')
+    return ('<h1>Update Product List</h1><br>')+ html +('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/products" type="button">Return to Products home</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>')
 
 @app.route('/products/update', methods = ['GET','POST'])
 def update_product():
@@ -181,7 +189,7 @@ def update_product():
         update_record.cost_per_item = request.form['cost_per_item']
         db.session.commit()
         
-    return redirect(url_for('read_products'))#render_template('customer_update.html',title='update_customer')
+    return redirect(url_for('products_update_page'))#render_template('customer_update.html',title='update_customer')
 
 @app.route('/products/update/<int:product_record>',methods=['GET','POST'])
 def product_update1(product_record):
@@ -192,7 +200,7 @@ def product_update1(product_record):
     html = df1.to_html(escape=False)
     record_no = product_record
     #customer_update_code = pd.read_html('customer_update.html')
-    return ('<h1>Update Products List</h1><br>')+html + "<br><br>" + render_template('product_update.html', value1 = record_no) + ('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')
+    return ('<h1>Update Products List</h1><br>')+html + "<br><br>" + render_template('product_update.html', value1 = record_no) + ('<br> <a href="/products">Back to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')+('<br> <a href="/orders">Navigate to Orders</a> </br>')+('<br> <a href="/products" type="button">Return to Products home</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>')
 
 ## delete products
 @app.route('/products/delete/<int:product_>',methods=['GET','POST'])
@@ -202,7 +210,7 @@ def delete_products(product_):
         db.session.delete(product_to_delete)
         db.session.commit()
         return redirect(url_for('read_products'))
-    else: return "Oops! You tried to delete a product that has already been purchased" +('<br> <a href="/products">Return to Products?</a> </br>')
+    else: return "Oops! You tried to delete a product that has already been purchased"+('<br> <br><a href="/products/update2">Try Again?</a> </br>')+('<br> <br><br><a href="/products">Return to Products</a> </br>') +('<br> <a href="/products" type="button">Return to Products home</a> </br>')+('<br> <br><a href="/" type="button">Return to Home</a> </br>')
 
 
 ## create orders
@@ -213,23 +221,23 @@ def add_order():
     sql_engine = sql.create_engine(connect_string)
     df = pd.read_sql_table('products', sql_engine)
     df.price = ('£' + df.price.astype('str')).str.ljust(5,'0')
+    df.rename(columns={'id':'Product ID'})
     df2 = pd.read_sql_table('customers', sql_engine,parse_dates='customer_dob')
     df['_______________________'] = ''
     df_join = pd.concat([df,df2],axis=1).fillna('.')
-    df_join.customer_dob = pd.to_datetime(df_join.customer_dob.str.split(' ')[0])
-    
-    df_join['Age'] = df_join.customer_dob#.str.split(' ')[0]#(datetime.today() - df_join.customer_dob.str.split(' ')[0]).astype('str')
-    #df_join.Age = (df_join.Age.str.split(' ',expand=True)[0].astype('int')/365).astype('int')
-    
-    df_join.drop(columns=['cost_per_item','customer_dob','customer_address'],inplace=True)
-    html = df_join.to_html(escape=False)  
+    #df_join.customer_dob = (df_join.customer_dob.astype('str')).str.split(' ')[0]
     date = datetime.today().strftime('%Y-%m-%d')
-    if request.method == 'POST':
+    df_join['Age'] = int(int((datetime.today() - df_join.customer_dob).astype('str').str.split(' ').str[0])/365)
+    df_join.drop(columns=['cost_per_item','customer_dob','customer_address'],inplace=True)
+    
+    df_join.rename(columns={'id':'Customer ID','product_name':'Product','price':'Price','product_brand':'Brand','quantity_in_stock':'Quantity in stock','first_name':'First Name','last_name':'Last Name'},inplace=True)
+    html = df_join.to_html(escape=False)  
+    #if request.method == 'POST':
         #connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
         #sql_engine = sql.create_engine(connect_string)
         #df = pd.read_sql_table('products', sql_engine)
         #df1 = df.loc[df.id==int(customer_record),:]
-        html = df_join.to_html(escape=False)
+    #    html = df_join.to_html(escape=False)
     return '<h1>Add New Order</h1><br>' + render_template('orderform.html',title='add_order', value = date) + '<br><br>' + html +('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 #return render_template('orderform.html',title='add_order') + '<br><br>' + html +('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 
@@ -255,9 +263,17 @@ def add_orders():
                 else:
                     return str(round(float(Products.query.filter_by(id = new_fk_product_id).first().price),2))+ "Oops, that wasn't the right price"+('<br> <a href="/orders/add">Try again?</a> </br>')
             else:
-                return "Oops, that wasn't right. The total price should be " + str(round((float(Products.query.filter_by(id = new_fk_product_id).first().price)) * float(request.form['quantity_ordered']),2))   
+                return ("<h3><br>Oops, that wasn't right. The total price should be " + "£"+str(round((float(Products.query.filter_by(id = new_fk_product_id).first().price)) * float(request.form['quantity_ordered']),2)).ljust(4,'0') +"</h3>"+
+                            ('<br> <a href="/orders/add">Try Again?</a> </br>') +
+                            ('<br> <a href="/orders/update2">Update Orders table</a> </br>') +
+                            ('<br> <br><a href="/orders">Return to Orders home</a> </br>')+
+                            ('<br> <a href="/">Return to Home</a> </br>'))
         else: 
-            return "Sorry, that product is out of stock"
+            return ("<h3><br>Sorry, there isn't enough of that product in stock</h3>" +
+                        ('<br> <a href="/orders/add">Try Again?</a> </br>') +
+                        ('<br> <a href="/orders/update2">Update Orders table</a> </br>') +
+                        ('<br> <br><a href="/orders">Return to Orders home</a> </br>')+
+                        ('<br> <a href="/">Return to Home</a> </br>'))
 
 ###################
 ### read orders
@@ -272,7 +288,7 @@ def read_orders():
     df_join.price_x = ('£'+df_join.price_x.astype('str')).str.ljust(5,'0')
     df_join.rename(columns={'purchase_date':'Date','first_name':'First Name','last_name':'Surname','product_name':'Product','product_brand':'Brand','price_x':'Price','quantity_ordered':'Quantity','id_x':'Order ID'},inplace=True)
     html = df_join.to_html()
-    return ('<h1>Orders</h1><br>')+ html + ('<br><a href="/orders/add">Add new order</a> </br>')+('<a href="/orders/update2">Edit an order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+(' <a href="/customers">Navigate to Customers</a> </br>')
+    return ('<h1>Orders</h1><br>')+ html + ('<br><a href="/orders/add">Add new order</a> </br>')+('<a href="/orders/update2">Edit an order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+(' <a href="/customers">Navigate to Customers</a> </br>')+('<br> <br><a href="/">Return to Home</a> </br>')
 
 ### update order
 
@@ -289,6 +305,7 @@ def orders_update_page():
     for n in range(len(df_join)):
         df_join.iloc[n,-1] = "<a href=/orders/delete/"+ str(df_join.loc[n,'id_x']) + ">delete</a>"
         df_join.iloc[n,-2] = "<a href=/orders/update/"+ str(df_join.loc[n,'id_x']) + ">update</a>"
+    df_join.price_x = ('£' + df_join.price_x.astype('str')).str.ljust(5,'0')
     df_join.rename(columns={'purchase_date':'Date','first_name':'First Name','last_name':'Surname','product_name':'Product','product_brand':'Brand','price_x':'Price','quantity_ordered':'Quantity','id_x':'Order ID'},inplace=True)
     html = df_join.to_html(render_links=True,escape=False,classes='table table-striped')
     return ('<h1>Update Orders</h1><br>')+html+('<br> <a href="/orders">Back to Orders</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+(' <a href="/customers">Navigate to Customers</a> </br>')

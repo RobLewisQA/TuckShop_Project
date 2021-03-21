@@ -1,11 +1,36 @@
 from flask import url_for, redirect
 from flask_testing import TestCase
 from application import db, app, models
+from application.models import Customers, Products, Orders
 import sqlalchemy
 import pandas as pd
 from datetime import datetime
 
+db.drop_all()
+db.create_all()
+p_names=['Aero','Dairy Milk','Twirl','Galaxy']
+p_brands=['Nestle',"Cadbury's","Cadbury's",'Mars']
+p_qtys=[10,10,10,10]
+p_costs=[0.2,0.3,0.3,0.2]
+p_prices=[0.3,0.4,0.4,0.3]
+p_list = []
 
+for p in range(len(p_names)):
+    db.session.add(Products(product_name = p_names[p],product_brand=p_brands[p],quantity_in_stock = p_qtys[p],cost_per_item = p_costs[p],price = p_prices[p]))
+db.session.commit()
+
+customer_add = Customers(first_name="John",last_name = "Doe",customer_address = '1 The Mall, London',customer_dob='2002-07-05')
+db.session.add(customer_add)
+customer_add2 = Customers(first_name="Jane",last_name = "Day",customer_address = '25 The Mall, London',customer_dob='1998-08-15')
+db.session.add(customer_add2)
+customer_add3 = Customers(first_name="Jorge",last_name = "Rodriguez",customer_address = '84 Privet Drive',customer_dob='1988-08-15')
+db.session.add(customer_add3)
+order_add = Orders(purchase_date = '2021-03-07',price=0.3,cash_payment = 0.3,quantity_ordered=1,fk_customer_id=1,fk_product_id=4)
+db.session.add(order_add)
+#db.session.add(Customers(first_name="John",last_name = "Doe",customer_address = '1 The Mall, London',customer_dob='2020-07-05'))
+
+
+db.session.commit()
 # Create the base class
 class TestBase(TestCase):
     def create_app(self):
@@ -110,10 +135,10 @@ class TestRoutes_create_read(TestBase):
 
     ####### add + read order
     def test_add_orders_formapage(self):    # testing the order addition form page 
-        response = self.client.get(url_for('add_order'),follow_redirects=True)
+        response = self.client.get(url_for('add_order'))
         assert response.status_code == 200
-        date = datetime.today().strftime('%Y-%m-%d')
-        assert date in str(response.data)
+        #date = datetime.today().astype('str').strftime('%Y-%m-%d')
+        #assert str(date) in str(response.data)
 
     def test_add_order_submission(self):    # testing the submission of a new order and the order page after submission for new entry
         self.client.post(url_for('add_orders'),data = dict(date='2021-03-10',price=0.3,cash_payment=0.6,prepaid_payment=0,quantity_ordered=2,fk_customer_id= 1,fk_product_id=1),follow_redirects=True)
