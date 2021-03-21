@@ -225,7 +225,6 @@ def add_order():
     df2 = pd.read_sql_table('customers', sql_engine,parse_dates='customer_dob')
     df['_______________________'] = ''
     df_join = pd.concat([df,df2],axis=1).fillna('.')
-    #df_join.customer_dob = (df_join.customer_dob.astype('str')).str.split(' ')[0]
     date = datetime.today().strftime('%Y-%m-%d')
     df_join['Age'] = (datetime.today() - df_join.customer_dob).astype('str').str.split(' ').str[0]
     df_join.Age = (df_join.Age.astype('int')/365).astype('int')
@@ -240,7 +239,6 @@ def add_order():
         #df1 = df.loc[df.id==int(customer_record),:]
     #    html = df_join.to_html(escape=False)
     return '<h1>Add New Order</h1><br>' + render_template('orderform.html',title='add_order', value = date) + '<br><br>' + html +('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
-#return render_template('orderform.html',title='add_order') + '<br><br>' + html +('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 
 @app.route('/orders/add/order',methods=['GET','POST'])
 def add_orders():
@@ -249,7 +247,6 @@ def add_orders():
             new_purchase_date = request.form['date']
             new_product_price = request.form['price']
             new_cash_payment = request.form['cash_payment']
-            #new_prepaid_payment = request.form['prepaid_payment']
             new_fk_customer_id = request.form['fk_customer_id']
             new_fk_product_id = request.form['fk_product_id']
             new_quantity_ordered = request.form['quantity_ordered']
@@ -260,7 +257,7 @@ def add_orders():
                     new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,quantity_ordered=new_quantity_ordered,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)#,prepaid_payment=new_prepaid_payment
                     db.session.add(new_order)
                     db.session.commit()
-                    return redirect(url_for('read_orders')) #f'{int(Products.query.filter_by(id = new_fk_product_id).first()).quantity_in_stock}'
+                    return redirect(url_for('read_orders'))
                 else:
                     return str(round(float(Products.query.filter_by(id = new_fk_product_id).first().price),2))+ "Oops, that wasn't the right price"+('<br> <a href="/orders/add">Try again?</a> </br>')
             else:
@@ -276,7 +273,7 @@ def add_orders():
                         ('<br> <br><a href="/orders">Return to Orders home</a> </br>')+
                         ('<br> <a href="/">Return to Home</a> </br>'))
 
-###################
+
 ### read orders
 @app.route('/orders')
 def read_orders():
@@ -290,6 +287,7 @@ def read_orders():
     df_join.rename(columns={'purchase_date':'Date','first_name':'First Name','last_name':'Surname','product_name':'Product','product_brand':'Brand','price_x':'Price','quantity_ordered':'Quantity','id_x':'Order ID'},inplace=True)
     html = df_join.to_html()
     return ('<h1>Orders</h1><br>')+ html + ('<br><a href="/orders/add">Add new order</a> </br>')+('<a href="/orders/update2">Edit an order</a> </br>')+('<br> <a href="/products">Navigate to Products</a> </br>')+(' <a href="/customers">Navigate to Customers</a> </br>')+('<br> <br><a href="/">Return to Home</a> </br>')
+
 
 ### update order
 
@@ -322,7 +320,6 @@ def update_order():
         #update_record.fk_customer_id = request.form['fk_customer_id']
         update_quantity_ordered = request.form['quantity_ordered']
         
-        #if (request.form['price'] == Products.query.filter_by(id=update_record.fk_product_id).first().price):# & (update_record.cash_payment == update_record.price * int(update_quantity_ordered)):
         if update_record.fk_product_id != request.form['fk_product_id']:
             if (float(request.form['price']) == float(Products.query.filter_by(id=int(request.form['fk_product_id'])).first().price)) & (float(request.form['cash_payment']) == float(request.form['price']) * int(update_quantity_ordered)):
                 update_record.price = request.form['price']
@@ -330,7 +327,6 @@ def update_order():
                 update_record.purchase_date = request.form['purchase_date']
                 update_record.price = request.form['price']
                 update_record.cash_payment = request.form['cash_payment']
-                #update_record.prepaid_payment = request.form['prepaid_payment']
                 update_record.fk_customer_id = request.form['fk_customer_id']
 
                 Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) + (int(update_record.quantity_ordered))
@@ -341,22 +337,20 @@ def update_order():
                 db.session.commit()    
                 return redirect(url_for('read_orders'))
             else:
-                return "Something wasn't right there. Your latest changes have not been logged in the system"#str(request.form['price']) + str(type(request.form['price']))+ "   " + str(Products.query.filter_by(id=int(request.form['fk_product_id'])).first().price) + str(type(Products.query.filter_by(id=int(request.form['fk_product_id'])).first().price))
+                return "Something wasn't right there. Your latest changes have not been logged in the system"
 
         elif update_record.fk_product_id == request.form['fk_product_id']:
             #Products.query.filter_by(id=update_record.fk_product_id).first().quantity_in_stock = 500 #int(Products.query.filter_by(id = int(update_record.fk_product_id)).first().quantity_in_stock) + (int(update_record.quantity_ordered)-(int(update_record.quantity_ordered)-int(update_quantity_ordered)))
             update_record.purchase_date = request.form['purchase_date']
             update_record.price = request.form['price']
             update_record.cash_payment = request.form['cash_payment']
-            #update_record.prepaid_payment = request.form['prepaid_payment']
             update_record.fk_customer_id = request.form['fk_customer_id']
             
             db.session.commit()
             update_record.fk_product_id = request.form['fk_product_id']
             update_record.quantity_ordered = request.form['quantity_ordered']
             return redirect(url_for('read_orders'))#render_template('customer_update.html',title='update_customer')
-        #else:
-        #    return "Oops, that didn't work. Make sure that the price and cash payment are correct!"
+
 
 @app.route('/orders/update/<int:order_record>',methods=['GET','POST'])
 def order_update1(order_record):
@@ -372,7 +366,6 @@ def order_update1(order_record):
     df_join.rename(columns={'fk_product_id':'Product ID','fk_customer_id':'Customer ID','purchase_date':'Date','first_name':'First Name','last_name':'Surname','product_name':'Product','product_brand':'Brand','price_x':'Price','quantity_ordered':'Quantity','id_x':'Order ID'},inplace=True)
     order_no = order_record
     html = df_join.to_html(escape=False,classes='table table-striped')
-    #customer_update_code = pd.read_html('customer_update.html')
     return ('<h1>Update Orders</h1><br>')+html + "<br><br>" + render_template('orders_update.html', value1=order_no)
 
 ### delete order
@@ -380,22 +373,13 @@ def order_update1(order_record):
 def delete_orders(order_):
     if request.method == 'POST':
         page=''
-    #order_to_delete = Orders.query.filter_by()
     order_to_delete = Orders.query.filter_by(id=order_).first()
-    #order_to_delete.quantity_in_stock = Products.query.filter_by(Orders.fk_product_id = order_to_delete.)
     order_fk_id = order_to_delete.fk_product_id
     Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(order_to_delete.fk_product_id)).first().quantity_in_stock) + int(order_to_delete.quantity_ordered)  
     db.session.delete(order_to_delete)
     db.session.commit()
     return redirect(url_for('read_orders'))
 
-# @app.route('/products/delete/<int:order>')
-# def delete_orders1(order_):
-#     Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock = int(Products.query.filter_by(id = int(new_fk_product_id)).first().quantity_in_stock) - 1
-#     db.session.commit()
-#     new_order = Orders(purchase_date=new_purchase_date,price=new_product_price,cash_payment=new_cash_payment,prepaid_payment=new_prepaid_payment,fk_customer_id=new_fk_customer_id,fk_product_id=new_fk_product_id)
-#     #   db.session.add(new_order)
-#     db.session.commit()
 
 
 
