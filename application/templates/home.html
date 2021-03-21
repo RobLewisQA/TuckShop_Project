@@ -1,10 +1,25 @@
 <html>
-    <head></head>
+    <head><h1>Tuckshop</h1></head>
     <body>
         <p>
-            This is my very first home page.
+            <h3>Welcome to Tuckshop, your one-stop shop for all your tuck shop transaction-recording needs.
+
+            </h3>
             <br/>
-            <a href="{{ url_for('read_products') }}">List of Products</a>
+            <p>If you would like to quickly make an order, please click on the link below:</p>
+            <a href="{{ url_for('add_order') }}">Make an order</a>
+            <br/><br>
+            <br/>
+            <p>To navigate to the Orders home page, where you can view, add, update and delete records, please click on the link below:</p>
+            <a href="{{ url_for('read_orders') }}">Go to Orders Home</a>
+            <br/><br>
+            <br/>
+            <p>To navigate to the Products home page, where you can view, add, update and delete records, please click on the link below:</p>
+            <a href="{{ url_for('read_products') }}">Go to Products Home</a>
+            <br/><br>
+            <br/>
+            <p>To navigate to the Customers home page, where you can view, add, update and delete records, please click on the link below:</p>
+            <a href="{{ url_for('read_customers') }}">Go to Customers Home</a>
         </p>
     <body>
 <html>
