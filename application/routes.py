@@ -232,12 +232,12 @@ def add_order():
     
     df_join.rename(columns={'id':'Customer ID','product_name':'Product','price':'Price','product_brand':'Brand','quantity_in_stock':'Quantity in stock','first_name':'First Name','last_name':'Last Name'},inplace=True)
     html = df_join.to_html(escape=False)  
-    if request.method == 'POST':
+    #if request.method == 'POST':
         #connect_string ="mysql+pymysql://root:root@34.89.69.248/Tuckshop"
         #sql_engine = sql.create_engine(connect_string)
         #df = pd.read_sql_table('products', sql_engine)
         #df1 = df.loc[df.id==int(customer_record),:]
-        html = df_join.to_html(escape=False)
+    #    html = df_join.to_html(escape=False)
     return '<h1>Add New Order</h1><br>' + render_template('orderform.html',title='add_order', value = date) + '<br><br>' + html +('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 #return render_template('orderform.html',title='add_order') + '<br><br>' + html +('<br> <a href="/products">Navigate to Products</a> </br>')+('<br> <a href="/customers">Navigate to Customers</a> </br>')
 
