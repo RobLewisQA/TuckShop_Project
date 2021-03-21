@@ -222,7 +222,7 @@ def add_order():
     df2 = pd.read_sql_table('customers', sql_engine,parse_dates='customer_dob')
     df['_______________________'] = ''
     df_join = pd.concat([df,df2],axis=1).fillna('.')
-    df_join.customer_dob = pd.to_datetime(df_join.customer_dob.str.split(' ')[0])
+    #df_join.customer_dob = (df_join.customer_dob.astype('str')).str.split(' ')[0]
     
     df_join['Age'] = df_join.customer_dob#.str.split(' ')[0]#(datetime.today() - df_join.customer_dob.str.split(' ')[0]).astype('str')
     #df_join.Age = (df_join.Age.str.split(' ',expand=True)[0].astype('int')/365).astype('int')
