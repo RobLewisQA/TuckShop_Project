@@ -38,7 +38,7 @@
 ## Database Entity Relationship Diagram
 > The database for Tuckshop is composed of 3 tables: Customers, Products and Orders. Each entry/row for each table has a unique ID value - the ID columns are the primary keys of their tables. The individual orders are connected to specific customers and products by foreign key relationships, denoted in the Orders table as fk_customer_id and fk_product_id. 
 
-Colloquially, the tables are related such that a single order is made by a single customer for a single product item (order quantities may vary). One customer can make many orders, or none, and one product can be included in many orders or none. A visualisation of this information is show below:
+> Colloquially, the tables are related such that a single order is made by a single customer for a single product item (order quantities may vary). One customer can make many orders, or none, and one product can be included in many orders or none. A visualisation of this information is show below:
 ![chart](Tuckshop_ERD.PNG)
 
 ## Risk Assessment
